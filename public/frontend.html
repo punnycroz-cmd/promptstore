@@ -424,10 +424,11 @@
   </main>
 
   <script>
+    window.__SERVER_URL__ = "__SERVER_URL__";
     const state = {
       models: [],
       aspectMap: {},
-      serverUrl: localStorage.getItem("imgnai_server_url") || "http://10.0.0.249:8000",
+      serverUrl: (window.__SERVER_URL__ || localStorage.getItem("imgnai_server_url") || "http://10.0.0.249:8000").trim().replace(/\/$/, ""),
       modelDefaults: null,
     };
 
@@ -515,7 +516,7 @@
     }
 
     async function loadModels() {
-      dom.serverUrl.value = state.serverUrl;
+    dom.serverUrl.value = state.serverUrl;
       try {
         const res = await fetch(`${state.serverUrl}/models`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
