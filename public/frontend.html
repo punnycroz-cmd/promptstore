@@ -779,6 +779,7 @@
             <span class="tag">${item.images || 0} images</span>
             <span class="tag">${item.created || ""}</span>
           </div>
+          <div class="rail-sub">${item.detail || ""}</div>
           <div class="rail-actions">
             <button class="mini-btn" type="button" data-reuse-history="${item.id}">Reuse prompt</button>
           </div>
@@ -827,6 +828,13 @@
       state.tasks = state.tasks.slice(0, 30);
       persistStore();
       renderTasks();
+    }
+
+    function addHistory(task) {
+      state.history.unshift(task);
+      state.history = state.history.slice(0, 30);
+      persistStore();
+      renderHistory();
     }
 
     function updateTask(id, patch) {
@@ -988,14 +996,10 @@
           task_uuids: [],
         };
         addTask(taskRecord);
-        state.history.unshift({ ...taskRecord, images: 0 });
-        state.history = state.history.slice(0, 30);
-        persistStore();
-        renderHistory();
         dom.generateBtn.disabled = true;
         dom.generateBtn.textContent = "Generating...";
-        setLoading(true, "Submitting generation request...");
-        updateTask(taskId, { status: "running", detail: "Waiting for ImgNai response..." });
+        setLoading(true, "Working...");
+        updateTask(taskId, { status: "running", detail: "Generating..." });
 
         const res = await fetch(`${state.serverUrl}/generate`, {
           method: "POST",
@@ -1016,18 +1020,20 @@
           resolution: data.resolution || body.aspect,
           seed: body.seed !== null ? body.seed + index * 100 : "Random",
         }));
-        updateTask(taskId, {
+        const doneTask = {
+          ...taskRecord,
           status: "done",
           detail: `${images.length} image${images.length === 1 ? "" : "s"} ready.`,
           task_uuids: data.task_uuids || [],
-        });
-        state.history = state.history.map((item) => item.id === taskId ? { ...item, status: "done", images: images.length } : item);
+          images: images.length,
+          created: new Date().toLocaleString(),
+        };
+        state.tasks = state.tasks.filter((item) => item.id !== taskId);
         persistStore();
-        renderHistory();
+        renderTasks();
+        addHistory(doneTask);
         renderImages(images);
-        setStatus("Connected", true);
       } catch (error) {
-        setStatus("Request failed");
         dom.defaultsLine.textContent = error.message;
         const active = state.tasks.find((t) => t.status === "running" || t.status === "pending");
         if (active) updateTask(active.id, { status: "failed", detail: error.message });
