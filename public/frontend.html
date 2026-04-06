@@ -3,18 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ImgNai Remote Generator</title>
+  <title>PromptStore</title>
   <style>
     :root {
       --bg: #0d0d0f;
-      --panel: #17171b;
-      --panel-2: #1f2025;
+      --panel: rgba(20, 20, 25, 0.78);
+      --panel-2: rgba(25, 25, 31, 0.92);
       --text: #f4f2ec;
-      --muted: #b5b0a7;
+      --muted: #aba59a;
       --accent: #ff77bf;
       --accent-2: #67d7ff;
+      --accent-3: #b48cff;
       --border: rgba(255, 255, 255, 0.08);
-      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
     }
 
     * { box-sizing: border-box; }
@@ -30,35 +31,38 @@
     }
 
     .shell {
-      width: min(1200px, calc(100% - 32px));
-      margin: 24px auto;
+      width: min(1320px, calc(100% - 32px));
+      margin: 20px auto 28px;
       display: grid;
       gap: 20px;
     }
 
     .hero {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
+      display: grid;
+      grid-template-columns: 1.2fr auto;
       gap: 20px;
-      padding: 24px 26px;
+      padding: 28px;
       border: 1px solid var(--border);
-      border-radius: 28px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255, 119, 191, 0.18), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(103, 215, 255, 0.14), transparent 26%),
+        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
       box-shadow: var(--shadow);
     }
 
     .hero h1 {
       margin: 0;
-      font-size: clamp(28px, 5vw, 52px);
-      letter-spacing: -0.04em;
+      font-size: clamp(34px, 5vw, 60px);
+      letter-spacing: -0.05em;
     }
 
     .hero p {
-      margin: 10px 0 0;
+      margin: 12px 0 0;
       color: var(--muted);
-      max-width: 70ch;
+      max-width: 72ch;
       line-height: 1.5;
+      font-size: 15px;
     }
 
     .status {
@@ -69,24 +73,33 @@
       color: var(--muted);
       font-size: 14px;
       white-space: nowrap;
+      align-self: end;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-columns: 1fr;
       gap: 20px;
     }
 
+    .workspace {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr) 320px;
+      gap: 20px;
+      align-items: start;
+    }
+
     .card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.03));
+      background: var(--panel);
+      backdrop-filter: blur(16px);
       border: 1px solid var(--border);
-      border-radius: 24px;
+      border-radius: 28px;
       box-shadow: var(--shadow);
       overflow: hidden;
     }
 
     .card header {
-      padding: 18px 20px;
+      padding: 18px 22px;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
@@ -100,7 +113,12 @@
     }
 
     .card .body {
-      padding: 20px;
+      padding: 22px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
     }
 
     .loader {
@@ -263,24 +281,70 @@
     }
 
     .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 12px;
+      column-count: 2;
+      column-gap: 14px;
     }
 
-    .gallery a {
-      display: block;
-      border-radius: 16px;
+    .art-card {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      margin: 0 0 14px;
+      border-radius: 20px;
       overflow: hidden;
       border: 1px solid var(--border);
       background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease;
     }
 
-    .gallery img {
+    .art-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 119, 191, 0.45);
+    }
+
+    .art-card img {
       width: 100%;
       display: block;
-      aspect-ratio: 1 / 1;
       object-fit: cover;
+      aspect-ratio: auto;
+    }
+
+    .art-meta {
+      position: absolute;
+      inset: auto 0 0 0;
+      padding: 12px 12px 10px;
+      background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.84));
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .art-title {
+      font-size: 12px;
+      color: #f5f2eb;
+      opacity: 0.96;
+    }
+
+    .art-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.35);
+      color: white;
+      border-radius: 999px;
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+      backdrop-filter: blur(8px);
     }
 
     .small {
@@ -288,10 +352,186 @@
       font-size: 13px;
     }
 
+    .rail-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .rail-item {
+      padding: 14px 14px 12px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      display: grid;
+      gap: 8px;
+    }
+
+    .rail-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .rail-title {
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    .rail-sub {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+    }
+
+    .status-chip {
+      font-size: 11px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .status-pending { background: rgba(255, 193, 7, 0.15); color: #ffd770; }
+    .status-running { background: rgba(103, 215, 255, 0.14); color: #9be8ff; }
+    .status-done { background: rgba(90, 232, 150, 0.14); color: #b9f8d0; }
+    .status-failed { background: rgba(255, 106, 106, 0.14); color: #ffb1b1; }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(5, 5, 8, 0.84);
+      backdrop-filter: blur(12px);
+      z-index: 60;
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-panel {
+      width: min(1100px, 100%);
+      max-height: 92vh;
+      border-radius: 28px;
+      background: #101114;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .modal-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .modal-body {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      min-height: 0;
+    }
+
+    .modal-image-wrap {
+      background: #0b0b0d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      padding: 18px;
+    }
+
+    .modal-image {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-info {
+      padding: 18px;
+      border-left: 1px solid var(--border);
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .kv {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+    }
+
+    .kv .k {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .kv .v {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .rail-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mini-btn {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 11px;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
     @media (max-width: 960px) {
       .grid { grid-template-columns: 1fr; }
+      .workspace { grid-template-columns: 1fr; }
       .row, .row-3 { grid-template-columns: 1fr; }
-      .hero { flex-direction: column; align-items: start; }
+      .hero { grid-template-columns: 1fr; }
+      .modal-body { grid-template-columns: 1fr; }
+      .modal-info { border-left: 0; border-top: 1px solid var(--border); }
+      .gallery { column-count: 1; }
     }
   </style>
 </head>
@@ -302,22 +542,68 @@
       <div class="small" id="loaderText">Generating...</div>
     </div>
   </div>
+  <div class="modal" id="modal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <div>
+          <div style="font-weight:700; letter-spacing:-0.02em;" id="modalTitle">Preview</div>
+          <div class="small" id="modalSubtitle">Generated image</div>
+        </div>
+        <button class="btn btn-secondary" id="closeModalBtn">Close</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-image-wrap">
+          <img class="modal-image" id="modalImage" alt="Generated preview" />
+        </div>
+        <aside class="modal-info">
+          <div class="kv">
+            <div class="k">Prompt</div>
+            <div class="v" id="modalPrompt"></div>
+          </div>
+          <div class="kv">
+            <div class="k">Model</div>
+            <div class="v" id="modalModel"></div>
+          </div>
+          <div class="kv">
+            <div class="k">Resolution</div>
+            <div class="v" id="modalResolution"></div>
+          </div>
+          <div class="kv">
+            <div class="k">Seed</div>
+            <div class="v" id="modalSeed"></div>
+          </div>
+          <div class="modal-actions">
+            <a class="btn btn-primary" id="downloadImageBtn" href="#" download>Download</a>
+            <a class="btn btn-secondary" id="openImageBtn" href="#" target="_blank" rel="noreferrer">Open image</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
   <main class="shell">
     <section class="hero">
       <div>
-        <h1>ImgNai Remote Generator</h1>
-        <p>Send prompts to your FastAPI server, keep cookies on the server machine, and manage models, quality, aspect ratio, and prompt settings from one clean page.</p>
+        <h1>PromptStore</h1>
+        <p>A focused prompt workspace for generating, reviewing, and storing image ideas from your remote ImgNai server.</p>
       </div>
-      <div class="status" id="serverStatus">Server: checking...</div>
+      <div class="status" id="serverStatus">Checking connection...</div>
     </section>
 
-    <section class="grid">
+    <section class="workspace">
       <article class="card">
-        <header>
-          <h2>Request Builder</h2>
-          <div class="small" id="defaultsLine">Loading model defaults...</div>
-        </header>
+        <header><h2>Prompt History</h2><div class="small" id="historyCount">0 saved</div></header>
         <div class="body">
+          <div class="rail-list" id="historyList"></div>
+        </div>
+      </article>
+
+      <div class="stack">
+        <article class="card">
+          <header>
+            <h2>Create Prompt</h2>
+            <div class="small" id="defaultsLine">Loading models...</div>
+          </header>
+          <div class="body">
           <div class="field" style="display:none;">
             <label for="serverUrl">Server URL</label>
             <input id="serverUrl" />
@@ -363,22 +649,30 @@
             </div>
           </div>
 
-          <div class="actions">
-            <button class="btn btn-primary" id="generateBtn">Generate</button>
-            <button class="btn btn-secondary" id="clearBtn">Clear Results</button>
+            <div class="actions">
+              <button class="btn btn-primary" id="generateBtn">Generate</button>
+              <button class="btn btn-secondary" id="clearBtn">Clear Results</button>
+            </div>
           </div>
+        </article>
+
+        <article class="card">
+          <header>
+            <h2>Prompt Store</h2>
+            <div class="small" id="imageCount">0 images</div>
+          </header>
+          <div class="body">
+            <div class="gallery" id="gallery"></div>
+          </div>
+        </article>
+      </div>
+
+      <article class="card">
+        <header><h2>Task Queue</h2><div class="small" id="taskCount">0 tasks</div></header>
+        <div class="body">
+          <div class="rail-list" id="taskList"></div>
         </div>
       </article>
-    </section>
-
-    <section class="card">
-      <header>
-        <h2>Images</h2>
-        <div class="small" id="imageCount">0 images</div>
-      </header>
-      <div class="body">
-        <div class="gallery" id="gallery"></div>
-      </div>
     </section>
   </main>
 
@@ -389,6 +683,9 @@
       aspectMap: {},
       serverUrl: (window.__SERVER_URL__ || localStorage.getItem("imgnai_server_url") || "http://10.0.0.249:8000").trim().replace(/\/$/, ""),
       modelDefaults: null,
+      lastGenerated: [],
+      history: JSON.parse(localStorage.getItem("promptstore_history") || "[]"),
+      tasks: JSON.parse(localStorage.getItem("promptstore_tasks") || "[]"),
     };
 
     const el = (id) => document.getElementById(id);
@@ -409,7 +706,22 @@
       clearBtn: el("clearBtn"),
       gallery: el("gallery"),
       imageCount: el("imageCount"),
+      historyCount: el("historyCount"),
+      historyList: el("historyList"),
+      taskCount: el("taskCount"),
+      taskList: el("taskList"),
       defaultsLine: el("defaultsLine"),
+      modal: el("modal"),
+      modalTitle: el("modalTitle"),
+      modalSubtitle: el("modalSubtitle"),
+      modalImage: el("modalImage"),
+      modalPrompt: el("modalPrompt"),
+      modalModel: el("modalModel"),
+      modalResolution: el("modalResolution"),
+      modalSeed: el("modalSeed"),
+      closeModalBtn: el("closeModalBtn"),
+      downloadImageBtn: el("downloadImageBtn"),
+      openImageBtn: el("openImageBtn"),
     };
 
     function setLoading(active, text = "Generating...") {
@@ -424,6 +736,124 @@
 
     function selectedModel() {
       return state.models.find((m) => m.name === dom.model.value) || null;
+    }
+
+    function persistStore() {
+      localStorage.setItem("promptstore_history", JSON.stringify(state.history.slice(0, 30)));
+      localStorage.setItem("promptstore_tasks", JSON.stringify(state.tasks.slice(0, 30)));
+    }
+
+    function statusClass(status) {
+      return {
+        pending: "status-pending",
+        running: "status-running",
+        done: "status-done",
+        failed: "status-failed",
+      }[status] || "status-pending";
+    }
+
+    function reuseTask(item) {
+      dom.model.value = item.model || dom.model.value;
+      dom.quality.value = item.quality || dom.quality.value;
+      dom.aspect.value = item.aspect || dom.aspect.value;
+      dom.prompt.value = item.prompt || "";
+      dom.seed.value = item.seed === null || item.seed === undefined || item.seed === "Random" ? "" : item.seed;
+      dom.negativePrompt.value = item.negative_prompt || (selectedModel()?.default_negative_prompt || "");
+      dom.nsfwPrompt.checked = !!item.nsfw;
+      loadDefaultsIntoForm();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderHistory() {
+      dom.historyCount.textContent = `${state.history.length} saved`;
+      dom.historyList.innerHTML = state.history.map((item) => `
+        <div class="rail-item">
+          <div class="rail-top">
+            <div>
+              <div class="rail-title">${item.model} · ${item.quality} · ${item.aspect}</div>
+              <div class="rail-sub">${item.prompt || ""}</div>
+            </div>
+            <span class="status-chip ${statusClass(item.status)}">${item.status}</span>
+          </div>
+          <div class="tag-row">
+            <span class="tag">${item.images || 0} images</span>
+            <span class="tag">${item.created || ""}</span>
+          </div>
+          <div class="rail-actions">
+            <button class="mini-btn" type="button" data-reuse-history="${item.id}">Reuse prompt</button>
+          </div>
+        </div>
+      `).join("");
+      dom.historyList.querySelectorAll("[data-reuse-history]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const item = state.history.find((entry) => entry.id === button.getAttribute("data-reuse-history"));
+          if (item) reuseTask(item);
+        });
+      });
+    }
+
+    function renderTasks() {
+      dom.taskCount.textContent = `${state.tasks.length} tasks`;
+      dom.taskList.innerHTML = state.tasks.map((item) => `
+        <div class="rail-item">
+          <div class="rail-top">
+            <div>
+              <div class="rail-title">${item.model} · ${item.quality}</div>
+              <div class="rail-sub">${item.prompt || ""}</div>
+            </div>
+            <span class="status-chip ${statusClass(item.status)}">${item.status}</span>
+          </div>
+          <div class="tag-row">
+            <span class="tag">${item.aspect}</span>
+            <span class="tag">seed: ${item.seed ?? "random"}</span>
+            <span class="tag">${item.task_uuids?.length || 0} jobs</span>
+          </div>
+          <div class="rail-sub">${item.detail || ""}</div>
+          <div class="rail-actions">
+            <button class="mini-btn" type="button" data-reuse-task="${item.id}">Reuse task</button>
+          </div>
+        </div>
+      `).join("");
+      dom.taskList.querySelectorAll("[data-reuse-task]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const item = state.tasks.find((entry) => entry.id === button.getAttribute("data-reuse-task"));
+          if (item) reuseTask(item);
+        });
+      });
+    }
+
+    function addTask(task) {
+      state.tasks.unshift(task);
+      state.tasks = state.tasks.slice(0, 30);
+      persistStore();
+      renderTasks();
+    }
+
+    function updateTask(id, patch) {
+      const task = state.tasks.find((t) => t.id === id);
+      if (!task) return;
+      Object.assign(task, patch);
+      persistStore();
+      renderTasks();
+    }
+
+    function openModal(item) {
+      dom.modalTitle.textContent = item.model || "Preview";
+      dom.modalSubtitle.textContent = item.url;
+      dom.modalImage.src = item.url;
+      dom.modalPrompt.textContent = item.prompt || "";
+      dom.modalModel.textContent = `${item.model || ""} • ${item.quality || ""} • ${item.aspect || ""}`;
+      dom.modalResolution.textContent = item.resolution || "";
+      dom.modalSeed.textContent = item.seed ?? "Random";
+      dom.downloadImageBtn.href = item.url;
+      dom.downloadImageBtn.download = `${(item.model || "prompt").replace(/\s+/g, "_")}.jpg`;
+      dom.openImageBtn.href = item.url;
+      dom.modal.classList.add("active");
+    }
+
+    function closeModal() {
+      dom.modal.classList.remove("active");
+      dom.modalImage.src = "";
     }
 
     function loadDefaultsIntoForm() {
@@ -464,6 +894,8 @@
         });
         loadDefaultsIntoForm();
         setStatus("Server: online", true);
+        renderHistory();
+        renderTasks();
       } catch (error) {
         setStatus("Server: offline or unreachable");
         dom.defaultsLine.textContent = `Failed to load models: ${error.message}`;
@@ -486,15 +918,31 @@
 
     function renderImages(urls) {
       dom.gallery.innerHTML = "";
-      urls.forEach((url) => {
-        const a = document.createElement("a");
-        a.href = url;
-        a.target = "_blank";
+      state.lastGenerated = urls;
+      urls.forEach((item, index) => {
+        const card = document.createElement("div");
+        card.className = "art-card";
+        const sizeTag = item.aspect ? item.aspect : "1:1";
+        card.innerHTML = `
+          <img src="${item.url}" alt="Generated output">
+          <div class="art-meta">
+            <div class="art-title">#${index + 1} · ${item.model || "Prompt"}<br><span style="opacity:.75">${sizeTag} · ${item.quality || ""}</span></div>
+            <div class="art-actions">
+              <a class="icon-btn" href="${item.url}" download title="Download">⇩</a>
+              <button class="icon-btn" type="button" title="View">↗</button>
+            </div>
+          </div>
+        `;
+        const viewBtn = card.querySelector("button");
+        viewBtn.addEventListener("click", (event) => {
+          event.stopPropagation();
+          openModal(item);
+        });
+        card.addEventListener("click", () => openModal(item));
+        const downloadLink = card.querySelector("a");
+        downloadLink.addEventListener("click", (event) => event.stopPropagation());
         const img = document.createElement("img");
-        img.src = url;
-        img.alt = "Generated output";
-        a.appendChild(img);
-        dom.gallery.appendChild(a);
+        dom.gallery.appendChild(card);
       });
       dom.imageCount.textContent = `${urls.length} image${urls.length === 1 ? "" : "s"}`;
     }
@@ -512,15 +960,42 @@
       dom.imageCount.textContent = "0 images";
       dom.prompt.value = "";
       dom.negativePrompt.value = "";
+      closeModal();
+    });
+
+    dom.closeModalBtn.addEventListener("click", closeModal);
+    dom.modal.addEventListener("click", (event) => {
+      if (event.target === dom.modal) closeModal();
     });
 
     dom.generateBtn.addEventListener("click", async () => {
       try {
         const body = collectRequestBody();
         if (!body.prompt) throw new Error("Prompt is required.");
+        const taskId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        const taskRecord = {
+          id: taskId,
+          model: body.model,
+          quality: body.quality,
+          aspect: body.aspect,
+          prompt: body.prompt,
+          seed: body.seed,
+          negative_prompt: body.negative_prompt,
+          nsfw: body.nsfw,
+          status: "pending",
+          created: new Date().toLocaleString(),
+          detail: "Queued on the server.",
+          task_uuids: [],
+        };
+        addTask(taskRecord);
+        state.history.unshift({ ...taskRecord, images: 0 });
+        state.history = state.history.slice(0, 30);
+        persistStore();
+        renderHistory();
         dom.generateBtn.disabled = true;
         dom.generateBtn.textContent = "Generating...";
         setLoading(true, "Submitting generation request...");
+        updateTask(taskId, { status: "running", detail: "Waiting for ImgNai response..." });
 
         const res = await fetch(`${state.serverUrl}/generate`, {
           method: "POST",
@@ -532,11 +1007,30 @@
           throw new Error(`HTTP ${res.status}: ${text}`);
         }
         const data = JSON.parse(text);
-        renderImages(data.image_urls || []);
-        setStatus("Server: request complete", true);
+        const images = (data.image_urls || []).map((url, index) => ({
+          url,
+          model: body.model,
+          quality: body.quality,
+          aspect: body.aspect,
+          prompt: body.prompt,
+          resolution: data.resolution || body.aspect,
+          seed: body.seed !== null ? body.seed + index * 100 : "Random",
+        }));
+        updateTask(taskId, {
+          status: "done",
+          detail: `${images.length} image${images.length === 1 ? "" : "s"} ready.`,
+          task_uuids: data.task_uuids || [],
+        });
+        state.history = state.history.map((item) => item.id === taskId ? { ...item, status: "done", images: images.length } : item);
+        persistStore();
+        renderHistory();
+        renderImages(images);
+        setStatus("Connected", true);
       } catch (error) {
-        setStatus("Server: request failed");
+        setStatus("Request failed");
         dom.defaultsLine.textContent = error.message;
+        const active = state.tasks.find((t) => t.status === "running" || t.status === "pending");
+        if (active) updateTask(active.id, { status: "failed", detail: error.message });
       } finally {
         setLoading(false);
         dom.generateBtn.disabled = false;
@@ -544,6 +1038,8 @@
       }
     });
 
+    renderHistory();
+    renderTasks();
     loadModels();
   </script>
 </body>
