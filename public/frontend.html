@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ImgNai Remote Generator</title>
+  <style>
+    :root {
+      --bg: #0d0d0f;
+      --panel: #17171b;
+      --panel-2: #1f2025;
+      --text: #f4f2ec;
+      --muted: #b5b0a7;
+      --accent: #ff77bf;
+      --accent-2: #67d7ff;
+      --border: rgba(255, 255, 255, 0.08);
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255, 119, 191, 0.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(103, 215, 255, 0.12), transparent 24%),
+        linear-gradient(180deg, #0b0b0d 0%, #111116 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .shell {
+      width: min(1200px, calc(100% - 32px));
+      margin: 24px auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 20px;
+      padding: 24px 26px;
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 52px);
+      letter-spacing: -0.04em;
+    }
+
+    .hero p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      max-width: 70ch;
+      line-height: 1.5;
+    }
+
+    .status {
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.03));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card header h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .card .body {
+      padding: 20px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    input, select, textarea, button {
+      font: inherit;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: rgba(0,0,0,0.22);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(255, 119, 191, 0.65);
+      background: rgba(0,0,0,0.32);
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .row-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.18);
+    }
+
+    .toggle input {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #ff4da1);
+      color: white;
+      box-shadow: 0 12px 28px rgba(255, 77, 161, 0.25);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .log {
+      min-height: 220px;
+      max-height: 420px;
+      overflow: auto;
+      background: #0b0b0d;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.07);
+      padding: 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      color: #d9d4cb;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .gallery a {
+      display: block;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .gallery img {
+      width: 100%;
+      display: block;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: 1fr; }
+      .row, .row-3 { grid-template-columns: 1fr; }
+      .hero { flex-direction: column; align-items: start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <h1>ImgNai Remote Generator</h1>
+        <p>Send prompts to your FastAPI server, keep cookies on the server machine, and manage models, quality, aspect ratio, and prompt settings from one clean page.</p>
+      </div>
+      <div class="status" id="serverStatus">Server: checking...</div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <header>
+          <h2>Request Builder</h2>
+          <div class="small" id="defaultsLine">Loading model defaults...</div>
+        </header>
+        <div class="body">
+          <div class="row">
+            <div class="field">
+              <label for="serverUrl">Server URL</label>
+              <input id="serverUrl" placeholder="http://10.0.0.249:8000" />
+            </div>
+            <div class="field">
+              <label for="model">Model</label>
+              <select id="model"></select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="quality">Quality</label>
+              <select id="quality"></select>
+            </div>
+            <div class="field">
+              <label for="aspect">Aspect Ratio</label>
+              <select id="aspect"></select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="resolution">Resolution Keyword</label>
+              <select id="resolution"></select>
+            </div>
+            <div class="field">
+              <label for="count">Batch Count</label>
+              <input id="count" type="number" min="1" max="8" value="4" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="seed">Seed</label>
+              <input id="seed" type="number" placeholder="Leave blank for random" />
+            </div>
+            <div class="field">
+              <label for="nsfwPrompt">NSFW</label>
+              <div class="toggle">
+                <input id="nsfwPrompt" type="checkbox" />
+                <span>Enable NSFW generation</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="prompt">Prompt</label>
+            <textarea id="prompt" placeholder="Describe the image you want to generate..."></textarea>
+          </div>
+
+          <div class="row-3">
+            <div class="field">
+              <label for="negativeMode">Negative Prompt</label>
+              <select id="negativeMode">
+                <option value="default">Use model default</option>
+                <option value="custom">Custom prompt</option>
+                <option value="none">Empty</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="steps">Sampling Steps</label>
+              <input id="steps" type="number" min="1" max="50" placeholder="model default" />
+            </div>
+            <div class="field">
+              <label for="cfg">CFG Control</label>
+              <input id="cfg" type="number" min="0" max="20" step="0.1" placeholder="model default" />
+            </div>
+          </div>
+
+          <div class="field" id="negativeWrap" style="display:none;">
+            <label for="negativePrompt">Negative Prompt Override</label>
+            <textarea id="negativePrompt" placeholder="Enter a custom negative prompt..."></textarea>
+          </div>
+
+          <div class="row">
+            <div class="toggle">
+              <input id="useCredits" type="checkbox" />
+              <span>Use credits</span>
+            </div>
+            <div class="toggle">
+              <input id="useAssistant" type="checkbox" />
+              <span>Use assistant</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="toggle">
+              <input id="promptAssist" type="checkbox" />
+              <span>Prompt assist</span>
+            </div>
+            <div class="toggle">
+              <input id="autoResolution" type="checkbox" />
+              <span>Auto resolution</span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" id="generateBtn">Generate</button>
+            <button class="btn btn-secondary" id="loadDefaultsBtn">Load Model Defaults</button>
+            <button class="btn btn-secondary" id="clearBtn">Clear Results</button>
+          </div>
+
+          <div class="chips" id="modelChips"></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <header>
+          <h2>Result Log</h2>
+          <div class="small" id="payloadSummary">Waiting for input...</div>
+        </header>
+        <div class="body">
+          <div class="log" id="log">Ready.</div>
+        </div>
+      </article>
+    </section>
+
+    <section class="card">
+      <header>
+        <h2>Images</h2>
+        <div class="small" id="imageCount">0 images</div>
+      </header>
+      <div class="body">
+        <div class="gallery" id="gallery"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      models: [],
+      aspectMap: {},
+      serverUrl: localStorage.getItem("imgnai_server_url") || "http://10.0.0.249:8000",
+      modelDefaults: null,
+    };
+
+    const el = (id) => document.getElementById(id);
+
+    const dom = {
+      serverUrl: el("serverUrl"),
+      serverStatus: el("serverStatus"),
+      model: el("model"),
+      quality: el("quality"),
+      aspect: el("aspect"),
+      resolution: el("resolution"),
+      count: el("count"),
+      seed: el("seed"),
+      prompt: el("prompt"),
+      negativeMode: el("negativeMode"),
+      negativeWrap: el("negativeWrap"),
+      negativePrompt: el("negativePrompt"),
+      nsfwPrompt: el("nsfwPrompt"),
+      useCredits: el("useCredits"),
+      useAssistant: el("useAssistant"),
+      promptAssist: el("promptAssist"),
+      autoResolution: el("autoResolution"),
+      steps: el("steps"),
+      cfg: el("cfg"),
+      generateBtn: el("generateBtn"),
+      loadDefaultsBtn: el("loadDefaultsBtn"),
+      clearBtn: el("clearBtn"),
+      log: el("log"),
+      gallery: el("gallery"),
+      imageCount: el("imageCount"),
+      payloadSummary: el("payloadSummary"),
+      defaultsLine: el("defaultsLine"),
+      modelChips: el("modelChips"),
+    };
+
+    function log(message) {
+      dom.log.textContent += (dom.log.textContent.endsWith("\n") ? "" : "\n") + message + "\n";
+      dom.log.scrollTop = dom.log.scrollHeight;
+    }
+
+    function setStatus(text, good = false) {
+      dom.serverStatus.textContent = text;
+      dom.serverStatus.style.color = good ? "#bff7d0" : "var(--muted)";
+    }
+
+    function setPayloadSummary(text) {
+      dom.payloadSummary.textContent = text;
+    }
+
+    function selectedModel() {
+      return state.models.find((m) => m.name === dom.model.value) || null;
+    }
+
+    function updateResolutionOptions() {
+      const res = state.aspectMap[dom.aspect.value] || [];
+      dom.resolution.innerHTML = "";
+      res.forEach((item) => {
+        const option = document.createElement("option");
+        option.value = item;
+        option.textContent = item;
+        dom.resolution.appendChild(option);
+      });
+      if (res.length) dom.resolution.value = res[0];
+    }
+
+    function loadDefaultsIntoForm() {
+      const model = selectedModel();
+      if (!model) return;
+      dom.steps.value = model.default_n_steps ?? "";
+      dom.cfg.value = model.default_guidance_scale ?? "";
+      dom.negativePrompt.value = model.default_negative_prompt ?? "";
+      dom.negativeMode.value = "default";
+      dom.negativeWrap.style.display = "none";
+      dom.autoResolution.checked = false;
+      state.modelDefaults = model;
+      dom.defaultsLine.textContent = `Defaults: profile=${model.profile}, steps=${model.default_n_steps}, cfg=${model.default_guidance_scale}`;
+      const chips = [
+        `profile: ${model.profile}`,
+        `steps: ${model.default_n_steps}`,
+        `cfg: ${model.default_guidance_scale}`,
+        `strength: ${model.default_strength}`,
+      ];
+      dom.modelChips.innerHTML = chips.map((c) => `<span class="chip">${c}</span>`).join("");
+    }
+
+    async function loadModels() {
+      dom.serverUrl.value = state.serverUrl;
+      try {
+        const res = await fetch(`${state.serverUrl}/models`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        state.models = data.models || [];
+        state.aspectMap = {};
+        Object.entries(data.aspect_to_resolution || {}).forEach(([k, v]) => {
+          state.aspectMap[k] = [v];
+        });
+        dom.model.innerHTML = "";
+        state.models.forEach((model) => {
+          const option = document.createElement("option");
+          option.value = model.name;
+          option.textContent = model.name;
+          dom.model.appendChild(option);
+        });
+        dom.quality.innerHTML = "";
+        (data.quality_choices || ["Fast", "High Quality"]).forEach((q) => {
+          const option = document.createElement("option");
+          option.value = q;
+          option.textContent = q;
+          dom.quality.appendChild(option);
+        });
+        dom.aspect.innerHTML = "";
+        (data.aspect_choices || ["1:1", "16:9", "5:2", "4:5", "4:7"]).forEach((a) => {
+          const option = document.createElement("option");
+          option.value = a;
+          option.textContent = a;
+          dom.aspect.appendChild(option);
+        });
+        updateResolutionOptions();
+        loadDefaultsIntoForm();
+        setStatus("Server: online", true);
+        setPayloadSummary("Loaded model defaults.");
+        log("Loaded model metadata from server.");
+      } catch (error) {
+        setStatus("Server: offline or unreachable");
+        log(`Failed to load models: ${error.message}`);
+      }
+    }
+
+    function collectRequestBody() {
+      const model = selectedModel();
+      if (!model) throw new Error("Select a model.");
+      const negativeMode = dom.negativeMode.value;
+      let negativePrompt = null;
+      if (negativeMode === "custom") negativePrompt = dom.negativePrompt.value.trim();
+      if (negativeMode === "none") negativePrompt = "";
+
+      return {
+        model: dom.model.value,
+        quality: dom.quality.value,
+        aspect: dom.aspect.value,
+        resolution: dom.resolution.value,
+        prompt: dom.prompt.value.trim(),
+        count: Number(dom.count.value || 4),
+        seed: dom.seed.value ? Number(dom.seed.value) : null,
+        nsfw: dom.nsfwPrompt.checked,
+        use_assistant: dom.useAssistant.checked,
+        prompt_assist: dom.promptAssist.checked,
+        use_credits: dom.useCredits.checked,
+        negative_prompt: negativePrompt,
+        auto_resolution: dom.autoResolution.checked,
+      };
+    }
+
+    function renderImages(urls) {
+      dom.gallery.innerHTML = "";
+      urls.forEach((url) => {
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        const img = document.createElement("img");
+        img.src = url;
+        img.alt = "Generated output";
+        a.appendChild(img);
+        dom.gallery.appendChild(a);
+      });
+      dom.imageCount.textContent = `${urls.length} image${urls.length === 1 ? "" : "s"}`;
+    }
+
+    dom.serverUrl.addEventListener("change", () => {
+      state.serverUrl = dom.serverUrl.value.trim().replace(/\/$/, "");
+      localStorage.setItem("imgnai_server_url", state.serverUrl);
+      loadModels();
+    });
+
+    dom.model.addEventListener("change", loadDefaultsIntoForm);
+    dom.aspect.addEventListener("change", updateResolutionOptions);
+    dom.negativeMode.addEventListener("change", () => {
+      dom.negativeWrap.style.display = dom.negativeMode.value === "custom" ? "block" : "none";
+      if (dom.negativeMode.value === "default" && state.modelDefaults) {
+        dom.negativePrompt.value = state.modelDefaults.default_negative_prompt || "";
+      }
+    });
+
+    dom.clearBtn.addEventListener("click", () => {
+      dom.log.textContent = "Ready.\n";
+      dom.gallery.innerHTML = "";
+      dom.imageCount.textContent = "0 images";
+      setPayloadSummary("Waiting for input...");
+    });
+
+    dom.loadDefaultsBtn.addEventListener("click", loadDefaultsIntoForm);
+
+    dom.generateBtn.addEventListener("click", async () => {
+      try {
+        const body = collectRequestBody();
+        if (!body.prompt) throw new Error("Prompt is required.");
+        if (body.negative_prompt === null && state.modelDefaults) {
+          body.negative_prompt = state.modelDefaults.default_negative_prompt || "";
+        }
+        dom.generateBtn.disabled = true;
+        dom.generateBtn.textContent = "Generating...";
+        dom.log.textContent = "";
+        log("Submitting generation request...");
+        log(JSON.stringify(body, null, 2));
+        setPayloadSummary(`${body.model} | ${body.quality} | ${body.aspect}`);
+
+        const res = await fetch(`${state.serverUrl}/generate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const text = await res.text();
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${text}`);
+        }
+        const data = JSON.parse(text);
+        log("\nSuccess:");
+        log(JSON.stringify(data, null, 2));
+        renderImages(data.image_urls || []);
+        setStatus("Server: request complete", true);
+      } catch (error) {
+        log(`\nError: ${error.message}`);
+        setStatus("Server: request failed");
+      } finally {
+        dom.generateBtn.disabled = false;
+        dom.generateBtn.textContent = "Generate";
+      }
+    });
+
+    loadModels();
+  </script>
+</body>
+</html>
