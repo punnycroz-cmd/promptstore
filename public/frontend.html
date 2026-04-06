@@ -103,6 +103,47 @@
       padding: 20px;
     }
 
+    .loader {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(7, 7, 10, 0.72);
+      backdrop-filter: blur(10px);
+      z-index: 50;
+    }
+
+    .loader.active {
+      display: flex;
+    }
+
+    .loader-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 24px 28px;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background: rgba(20, 20, 25, 0.92);
+      box-shadow: var(--shadow);
+      min-width: 220px;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 4px solid rgba(255,255,255,0.12);
+      border-top-color: var(--accent);
+      animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     .field {
       display: grid;
       gap: 8px;
@@ -221,21 +262,6 @@
       color: var(--muted);
     }
 
-    .log {
-      min-height: 220px;
-      max-height: 420px;
-      overflow: auto;
-      background: #0b0b0d;
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.07);
-      padding: 16px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 13px;
-      line-height: 1.55;
-      white-space: pre-wrap;
-      color: #d9d4cb;
-    }
-
     .gallery {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -262,13 +288,6 @@
       font-size: 13px;
     }
 
-    .split {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: center;
-    }
-
     @media (max-width: 960px) {
       .grid { grid-template-columns: 1fr; }
       .row, .row-3 { grid-template-columns: 1fr; }
@@ -277,6 +296,12 @@
   </style>
 </head>
 <body>
+  <div class="loader" id="loader">
+    <div class="loader-card">
+      <div class="spinner"></div>
+      <div class="small" id="loaderText">Generating...</div>
+    </div>
+  </div>
   <main class="shell">
     <section class="hero">
       <div>
@@ -293,15 +318,14 @@
           <div class="small" id="defaultsLine">Loading model defaults...</div>
         </header>
         <div class="body">
-          <div class="row">
-            <div class="field">
-              <label for="serverUrl">Server URL</label>
-              <input id="serverUrl" placeholder="http://10.0.0.249:8000" />
-            </div>
-            <div class="field">
-              <label for="model">Model</label>
-              <select id="model"></select>
-            </div>
+          <div class="field" style="display:none;">
+            <label for="serverUrl">Server URL</label>
+            <input id="serverUrl" />
+          </div>
+
+          <div class="field">
+            <label for="model">Model</label>
+            <select id="model"></select>
           </div>
 
           <div class="row">
@@ -315,28 +339,11 @@
             </div>
           </div>
 
-          <div class="row">
-            <div class="field">
-              <label for="resolution">Resolution Keyword</label>
-              <select id="resolution"></select>
-            </div>
-            <div class="field">
-              <label for="count">Batch Count</label>
-              <input id="count" type="number" min="1" max="8" value="4" />
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="field">
-              <label for="seed">Seed</label>
-              <input id="seed" type="number" placeholder="Leave blank for random" />
-            </div>
-            <div class="field">
-              <label for="nsfwPrompt">NSFW</label>
-              <div class="toggle">
-                <input id="nsfwPrompt" type="checkbox" />
-                <span>Enable NSFW generation</span>
-              </div>
+          <div class="field">
+            <label for="nsfwPrompt">NSFW</label>
+            <div class="toggle">
+              <input id="nsfwPrompt" type="checkbox" />
+              <span>Enable NSFW generation</span>
             </div>
           </div>
 
@@ -345,69 +352,21 @@
             <textarea id="prompt" placeholder="Describe the image you want to generate..."></textarea>
           </div>
 
-          <div class="row-3">
-            <div class="field">
-              <label for="negativeMode">Negative Prompt</label>
-              <select id="negativeMode">
-                <option value="default">Use model default</option>
-                <option value="custom">Custom prompt</option>
-                <option value="none">Empty</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="steps">Sampling Steps</label>
-              <input id="steps" type="number" min="1" max="50" placeholder="model default" />
-            </div>
-            <div class="field">
-              <label for="cfg">CFG Control</label>
-              <input id="cfg" type="number" min="0" max="20" step="0.1" placeholder="model default" />
-            </div>
-          </div>
-
-          <div class="field" id="negativeWrap" style="display:none;">
-            <label for="negativePrompt">Negative Prompt Override</label>
-            <textarea id="negativePrompt" placeholder="Enter a custom negative prompt..."></textarea>
-          </div>
-
           <div class="row">
-            <div class="toggle">
-              <input id="useCredits" type="checkbox" />
-              <span>Use credits</span>
+            <div class="field">
+              <label for="negativePrompt">Negative Prompt</label>
+              <textarea id="negativePrompt" placeholder="Leave empty for no negative prompt"></textarea>
             </div>
-            <div class="toggle">
-              <input id="useAssistant" type="checkbox" />
-              <span>Use assistant</span>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="toggle">
-              <input id="promptAssist" type="checkbox" />
-              <span>Prompt assist</span>
-            </div>
-            <div class="toggle">
-              <input id="autoResolution" type="checkbox" />
-              <span>Auto resolution</span>
+            <div class="field">
+              <label for="seed">Seed</label>
+              <input id="seed" type="number" placeholder="Leave blank for random" />
             </div>
           </div>
 
           <div class="actions">
             <button class="btn btn-primary" id="generateBtn">Generate</button>
-            <button class="btn btn-secondary" id="loadDefaultsBtn">Load Model Defaults</button>
             <button class="btn btn-secondary" id="clearBtn">Clear Results</button>
           </div>
-
-          <div class="chips" id="modelChips"></div>
-        </div>
-      </article>
-
-      <article class="card">
-        <header>
-          <h2>Result Log</h2>
-          <div class="small" id="payloadSummary">Waiting for input...</div>
-        </header>
-        <div class="body">
-          <div class="log" id="log">Ready.</div>
         </div>
       </article>
     </section>
@@ -437,37 +396,25 @@
     const dom = {
       serverUrl: el("serverUrl"),
       serverStatus: el("serverStatus"),
+      loader: el("loader"),
+      loaderText: el("loaderText"),
       model: el("model"),
       quality: el("quality"),
       aspect: el("aspect"),
-      resolution: el("resolution"),
-      count: el("count"),
       seed: el("seed"),
       prompt: el("prompt"),
-      negativeMode: el("negativeMode"),
-      negativeWrap: el("negativeWrap"),
       negativePrompt: el("negativePrompt"),
       nsfwPrompt: el("nsfwPrompt"),
-      useCredits: el("useCredits"),
-      useAssistant: el("useAssistant"),
-      promptAssist: el("promptAssist"),
-      autoResolution: el("autoResolution"),
-      steps: el("steps"),
-      cfg: el("cfg"),
       generateBtn: el("generateBtn"),
-      loadDefaultsBtn: el("loadDefaultsBtn"),
       clearBtn: el("clearBtn"),
-      log: el("log"),
       gallery: el("gallery"),
       imageCount: el("imageCount"),
-      payloadSummary: el("payloadSummary"),
       defaultsLine: el("defaultsLine"),
-      modelChips: el("modelChips"),
     };
 
-    function log(message) {
-      dom.log.textContent += (dom.log.textContent.endsWith("\n") ? "" : "\n") + message + "\n";
-      dom.log.scrollTop = dom.log.scrollHeight;
+    function setLoading(active, text = "Generating...") {
+      dom.loader.classList.toggle("active", active);
+      dom.loaderText.textContent = text;
     }
 
     function setStatus(text, good = false) {
@@ -475,57 +422,25 @@
       dom.serverStatus.style.color = good ? "#bff7d0" : "var(--muted)";
     }
 
-    function setPayloadSummary(text) {
-      dom.payloadSummary.textContent = text;
-    }
-
     function selectedModel() {
       return state.models.find((m) => m.name === dom.model.value) || null;
-    }
-
-    function updateResolutionOptions() {
-      const res = state.aspectMap[dom.aspect.value] || [];
-      dom.resolution.innerHTML = "";
-      res.forEach((item) => {
-        const option = document.createElement("option");
-        option.value = item;
-        option.textContent = item;
-        dom.resolution.appendChild(option);
-      });
-      if (res.length) dom.resolution.value = res[0];
     }
 
     function loadDefaultsIntoForm() {
       const model = selectedModel();
       if (!model) return;
-      dom.steps.value = model.default_n_steps ?? "";
-      dom.cfg.value = model.default_guidance_scale ?? "";
-      dom.negativePrompt.value = model.default_negative_prompt ?? "";
-      dom.negativeMode.value = "default";
-      dom.negativeWrap.style.display = "none";
-      dom.autoResolution.checked = false;
       state.modelDefaults = model;
+      dom.negativePrompt.value = model.default_negative_prompt || "";
       dom.defaultsLine.textContent = `Defaults: profile=${model.profile}, steps=${model.default_n_steps}, cfg=${model.default_guidance_scale}`;
-      const chips = [
-        `profile: ${model.profile}`,
-        `steps: ${model.default_n_steps}`,
-        `cfg: ${model.default_guidance_scale}`,
-        `strength: ${model.default_strength}`,
-      ];
-      dom.modelChips.innerHTML = chips.map((c) => `<span class="chip">${c}</span>`).join("");
     }
 
     async function loadModels() {
-    dom.serverUrl.value = state.serverUrl;
+      dom.serverUrl.value = state.serverUrl;
       try {
         const res = await fetch(`${state.serverUrl}/models`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         state.models = data.models || [];
-        state.aspectMap = {};
-        Object.entries(data.aspect_to_resolution || {}).forEach(([k, v]) => {
-          state.aspectMap[k] = [v];
-        });
         dom.model.innerHTML = "";
         state.models.forEach((model) => {
           const option = document.createElement("option");
@@ -547,39 +462,25 @@
           option.textContent = a;
           dom.aspect.appendChild(option);
         });
-        updateResolutionOptions();
         loadDefaultsIntoForm();
         setStatus("Server: online", true);
-        setPayloadSummary("Loaded model defaults.");
-        log("Loaded model metadata from server.");
       } catch (error) {
         setStatus("Server: offline or unreachable");
-        log(`Failed to load models: ${error.message}`);
+        dom.defaultsLine.textContent = `Failed to load models: ${error.message}`;
       }
     }
 
     function collectRequestBody() {
       const model = selectedModel();
       if (!model) throw new Error("Select a model.");
-      const negativeMode = dom.negativeMode.value;
-      let negativePrompt = null;
-      if (negativeMode === "custom") negativePrompt = dom.negativePrompt.value.trim();
-      if (negativeMode === "none") negativePrompt = "";
-
       return {
         model: dom.model.value,
         quality: dom.quality.value,
         aspect: dom.aspect.value,
-        resolution: dom.resolution.value,
         prompt: dom.prompt.value.trim(),
-        count: Number(dom.count.value || 4),
         seed: dom.seed.value ? Number(dom.seed.value) : null,
         nsfw: dom.nsfwPrompt.checked,
-        use_assistant: dom.useAssistant.checked,
-        prompt_assist: dom.promptAssist.checked,
-        use_credits: dom.useCredits.checked,
-        negative_prompt: negativePrompt,
-        auto_resolution: dom.autoResolution.checked,
+        negative_prompt: dom.negativePrompt.value.trim(),
       };
     }
 
@@ -605,36 +506,21 @@
     });
 
     dom.model.addEventListener("change", loadDefaultsIntoForm);
-    dom.aspect.addEventListener("change", updateResolutionOptions);
-    dom.negativeMode.addEventListener("change", () => {
-      dom.negativeWrap.style.display = dom.negativeMode.value === "custom" ? "block" : "none";
-      if (dom.negativeMode.value === "default" && state.modelDefaults) {
-        dom.negativePrompt.value = state.modelDefaults.default_negative_prompt || "";
-      }
-    });
 
     dom.clearBtn.addEventListener("click", () => {
-      dom.log.textContent = "Ready.\n";
       dom.gallery.innerHTML = "";
       dom.imageCount.textContent = "0 images";
-      setPayloadSummary("Waiting for input...");
+      dom.prompt.value = "";
+      dom.negativePrompt.value = "";
     });
-
-    dom.loadDefaultsBtn.addEventListener("click", loadDefaultsIntoForm);
 
     dom.generateBtn.addEventListener("click", async () => {
       try {
         const body = collectRequestBody();
         if (!body.prompt) throw new Error("Prompt is required.");
-        if (body.negative_prompt === null && state.modelDefaults) {
-          body.negative_prompt = state.modelDefaults.default_negative_prompt || "";
-        }
         dom.generateBtn.disabled = true;
         dom.generateBtn.textContent = "Generating...";
-        dom.log.textContent = "";
-        log("Submitting generation request...");
-        log(JSON.stringify(body, null, 2));
-        setPayloadSummary(`${body.model} | ${body.quality} | ${body.aspect}`);
+        setLoading(true, "Submitting generation request...");
 
         const res = await fetch(`${state.serverUrl}/generate`, {
           method: "POST",
@@ -646,14 +532,13 @@
           throw new Error(`HTTP ${res.status}: ${text}`);
         }
         const data = JSON.parse(text);
-        log("\nSuccess:");
-        log(JSON.stringify(data, null, 2));
         renderImages(data.image_urls || []);
         setStatus("Server: request complete", true);
       } catch (error) {
-        log(`\nError: ${error.message}`);
         setStatus("Server: request failed");
+        dom.defaultsLine.textContent = error.message;
       } finally {
+        setLoading(false);
         dom.generateBtn.disabled = false;
         dom.generateBtn.textContent = "Generate";
       }
