@@ -121,47 +121,6 @@
       gap: 16px;
     }
 
-    .loader {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(7, 7, 10, 0.72);
-      backdrop-filter: blur(10px);
-      z-index: 50;
-    }
-
-    .loader.active {
-      display: flex;
-    }
-
-    .loader-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-      padding: 24px 28px;
-      border-radius: 22px;
-      border: 1px solid var(--border);
-      background: rgba(20, 20, 25, 0.92);
-      box-shadow: var(--shadow);
-      min-width: 220px;
-    }
-
-    .spinner {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: 4px solid rgba(255,255,255,0.12);
-      border-top-color: var(--accent);
-      animation: spin 0.9s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
     .field {
       display: grid;
       gap: 8px;
@@ -536,12 +495,6 @@
   </style>
 </head>
 <body>
-  <div class="loader" id="loader">
-    <div class="loader-card">
-      <div class="spinner"></div>
-      <div class="small" id="loaderText">Generating...</div>
-    </div>
-  </div>
   <div class="modal" id="modal">
     <div class="modal-panel">
       <div class="modal-head">
@@ -693,8 +646,6 @@
     const dom = {
       serverUrl: el("serverUrl"),
       serverStatus: el("serverStatus"),
-      loader: el("loader"),
-      loaderText: el("loaderText"),
       model: el("model"),
       quality: el("quality"),
       aspect: el("aspect"),
@@ -723,11 +674,6 @@
       downloadImageBtn: el("downloadImageBtn"),
       openImageBtn: el("openImageBtn"),
     };
-
-    function setLoading(active, text = "Generating...") {
-      dom.loader.classList.toggle("active", active);
-      dom.loaderText.textContent = text;
-    }
 
     function setStatus(text, good = false) {
       dom.serverStatus.textContent = text;
@@ -998,7 +944,6 @@
         addTask(taskRecord);
         dom.generateBtn.disabled = true;
         dom.generateBtn.textContent = "Generating...";
-        setLoading(true, "Working...");
         updateTask(taskId, { status: "running", detail: "Generating..." });
 
         const res = await fetch(`${state.serverUrl}/generate`, {
@@ -1038,7 +983,6 @@
         const active = state.tasks.find((t) => t.status === "running" || t.status === "pending");
         if (active) updateTask(active.id, { status: "failed", detail: error.message });
       } finally {
-        setLoading(false);
         dom.generateBtn.disabled = false;
         dom.generateBtn.textContent = "Generate";
       }
