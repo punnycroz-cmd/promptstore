@@ -646,6 +646,59 @@
   <script>
     window.__SERVER_URL__ = "__SERVER_URL__";
     window.__SERVER_URL_NSFW__ = "__SERVER_URL_NSFW__";
+    const SFW_MODELS = [
+      {"name":"Ani","profile":"ani","default_n_steps":32,"default_guidance_scale":8.5,"default_strength":0.76,"default_negative_prompt":"text, watermark, blurry, monochrome, sketch, line art, drawing, pencil art, pen art, watermark, signature, low quality, bad quality"},
+      {"name":"Aura","profile":"aura","default_n_steps":36,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"score_6, score_5, score_4, low res, huge breasts, mutated hands, bad hands, monochrome, grayscale, old, ugly, jewelry, accessory, bad eyes, bad face, muscular, chibi, buzzcut, watermark, logo"},
+      {"name":"Evo","profile":"evo","default_n_steps":40,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"(worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth, watermark)"},
+      {"name":"Flux1 D","profile":"flux1d","default_n_steps":35,"default_guidance_scale":3.5,"default_strength":0.76,"default_negative_prompt":""},
+      {"name":"Fur","profile":"fur","default_n_steps":25,"default_guidance_scale":4.5,"default_strength":0.76,"default_negative_prompt":"human, multiple tails, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, very displeasing, (worst"},
+      {"name":"FurXL Classic","profile":"furxl","default_n_steps":40,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"(worst quality, low quality), watermarks, signature, (interlocked fingers)"},
+      {"name":"Gen","profile":"gen","default_n_steps":30,"default_guidance_scale":3.5,"default_strength":0.76,"default_negative_prompt":"low quality, bad quality, mutated, low detail, blurry, out of focus, jpeg artifacts, bad anatomy, mutated hands, deformed hands, too many fingers, extra legs, extra arms, deformed feet, bad feet"},
+      {"name":"Glitch","profile":"glitch","default_n_steps":30,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"loli, young, petite, patreon, bad anatomy, bad hands, error, missing fingers, extra digit, fewer digits, cropped,long legs,signature, patreon username, patreon logo"},
+      {"name":"Gothic","profile":"gothic","default_n_steps":30,"default_guidance_scale":4,"default_strength":0.76,"default_negative_prompt":"3d, Negative prompt: worst_quality, bad_quality, poorly_detailed, 2d, sketch, ugly face, low res, interlocked fingers, anatomically incorrect hands, bad anatomy, {worst quality, low quality, normal quality}, (watermark, signature, letter, username, logo, "},
+      {"name":"Hyper CGI","profile":"hypercgi","default_n_steps":25,"default_guidance_scale":3,"default_strength":0.76,"default_negative_prompt":"SmoothNegative_Hands-neg, Smooth Negative, modern, recent, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra fingers, e"},
+      {"name":"HyperX","profile":"hyperx","default_n_steps":28,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"blur, bad quality, bad composition, copyright, watermark, lineart, pixelated, pixelart, drawing, painting, sketch"},
+      {"name":"Muse","profile":"muse","default_n_steps":28,"default_guidance_scale":3,"default_strength":0.76,"default_negative_prompt":""},
+      {"name":"Nai","profile":"nai","default_n_steps":50,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"child, loli, young, source_furry, source_pony, monochrome, 3d, censored, (worst quality, low quality:1.4), (jpeg artifacts:1.4), negative_hand, negative_hand-neg, watermark, signature, text"},
+      {"name":"Neo","profile":"neo","default_n_steps":35,"default_guidance_scale":4,"default_strength":0.76,"default_negative_prompt":""},
+      {"name":"Noob","profile":"noob","default_n_steps":32,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"worst quality, old, early, low quality, lowres, signature, username, logo, bad hands, mutated hands, mammal, anthro, furry, ambiguous form, feral, semi-anthro"},
+      {"name":"Pixel","profile":"pixel","default_n_steps":26,"default_guidance_scale":3.5,"default_strength":0.76,"default_negative_prompt":"bad quality, worst quality, worst detail, copyright name, bad anatomy, watermark"},
+      {"name":"Pony","profile":"pony","default_n_steps":30,"default_guidance_scale":6,"default_strength":0.76,"default_negative_prompt":"score_6, score_5, score_4, nsfw, pumpkin, 3d, blurry, cropped, signature, username, watermark, jpeg artifacts, normal quality, worst quality, low quality, (missing fingers, extra digits, extra fingers, fewer digits, bad hands:1.3), bad eye,(deformed, dist"},
+      {"name":"Rend","profile":"rend","default_n_steps":40,"default_guidance_scale":6,"default_strength":0.76,"default_negative_prompt":"worst_quality, bad_quality, poorly_detailed, long neck"},
+      {"name":"Retro","profile":"retro","default_n_steps":30,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"worst quality, low quality, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digits, fewer digits, cropped, jpeg artifacts, signature, watermark, username, blurry, artist name, old, early, lowres, logo, mutated hands, mammal, anthro, fu"},
+      {"name":"Supra","profile":"supra","default_n_steps":50,"default_guidance_scale":2,"default_strength":0.76,"default_negative_prompt":"(deformed iris, deformed pupils), worst quality, low quality, blurry, text"},
+      {"name":"Synth","profile":"synth","default_n_steps":40,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"bad quality, worst quality, worst detail, censor, bad anatomy, patreon, name, signature, child, underage, loli"},
+      {"name":"Toon","profile":"toon","default_n_steps":53,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"score_6, score_5, score_4, ugly face, mutated hands, ahegao, bad eyes, monochrome, sketch, ugly style"},
+      {"name":"Volt","profile":"volt","default_n_steps":30,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"bad quality, poor quality, disfigured, jpg, toy, bad anatomy, missing limbs, missing fingers, ugly, scary, watermark"},
+      {"name":"Wassie","profile":"wassie","default_n_steps":40,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"wrong,imperfect hands, painting, sketch, concept art, cross-eyed,sketches, (worst quality:2), (low quality:2), (normal quality:2), lowres, normal quality, skin spots, acnes, skin blemishes, bad anatomy, DeepNegative, facing away, tilted head, lowres, bad "}
+    ];
+
+    const NSFW_MODELS = [
+      {"name":"Gen","profile":"gen","default_n_steps":30,"default_guidance_scale":3.5,"default_strength":0.76,"default_negative_prompt":"low quality, bad quality, mutated, low detail, blurry, out of focus, jpeg artifacts, bad anatomy, mutated hands, deformed hands, too many fingers, extra legs, extra arms, deformed feet, bad feet"},
+      {"name":"Ani","profile":"ani","default_n_steps":32,"default_guidance_scale":8.5,"default_strength":0.76,"default_negative_prompt":"text, watermark, blurry, monochrome, sketch, line art, drawing, pencil art, pen art, watermark, signature, low quality, bad quality"},
+      {"name":"Synth","profile":"synth","default_n_steps":40,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"bad quality, worst quality, worst detail, censor, bad anatomy, patreon, name, signature, child, underage, loli"},
+      {"name":"Fur","profile":"fur","default_n_steps":25,"default_guidance_scale":4.5,"default_strength":0.76,"default_negative_prompt":"human, multiple tails, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, very displeasing, (worst"},
+      {"name":"Noob","profile":"noob","default_n_steps":32,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"worst quality, old, early, low quality, lowres, signature, username, logo, bad hands, mutated hands, mammal, anthro, furry, ambiguous form, feral, semi-anthro"},
+      {"name":"Aura","profile":"aura","default_n_steps":36,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"score_6, score_5, score_4, low res, huge breasts, mutated hands, bad hands, monochrome, grayscale, old, ugly, jewelry, accessory, bad eyes, bad face, muscular, chibi, buzzcut, watermark, logo"},
+      {"name":"Pixel","profile":"pixel","default_n_steps":26,"default_guidance_scale":3.5,"default_strength":0.76,"default_negative_prompt":"bad quality, worst quality, worst detail, copyright name, bad anatomy, watermark"},
+      {"name":"Hyper CGI","profile":"hypercgi","default_n_steps":25,"default_guidance_scale":3,"default_strength":0.76,"default_negative_prompt":"SmoothNegative_Hands-neg, Smooth Negative, modern, recent, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra fingers, e"},
+      {"name":"Volt","profile":"volt","default_n_steps":30,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"bad quality, poor quality, disfigured, jpg, toy, bad anatomy, missing limbs, missing fingers, ugly, scary, watermark"},
+      {"name":"Muse","profile":"muse","default_n_steps":28,"default_guidance_scale":3,"default_strength":0.76,"default_negative_prompt":""},
+      {"name":"Rend","profile":"rend","default_n_steps":40,"default_guidance_scale":6,"default_strength":0.76,"default_negative_prompt":"worst_quality, bad_quality, poorly_detailed, long neck"},
+      {"name":"Pony","profile":"pony","default_n_steps":30,"default_guidance_scale":6,"default_strength":0.76,"default_negative_prompt":"score_6, score_5, score_4, nsfw, pumpkin, 3d, blurry, cropped, signature, username, watermark, jpeg artifacts, normal quality, worst quality, low quality, (missing fingers, extra digits, extra fingers, fewer digits, bad hands:1.3), bad eye,(deformed, dist"},
+      {"name":"Neo","profile":"neo","default_n_steps":35,"default_guidance_scale":4,"default_strength":0.76,"default_negative_prompt":""},
+      {"name":"Nai","profile":"nai","default_n_steps":50,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"child, loli, young, source_furry, source_pony, monochrome, 3d, censored, (worst quality, low quality:1.4), (jpeg artifacts:1.4), negative_hand, negative_hand-neg, watermark, signature, text"},
+      {"name":"Glitch","profile":"glitch","default_n_steps":30,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"loli, young, petite, patreon, bad anatomy, bad hands, error, missing fingers, extra digit, fewer digits, cropped,long legs,signature, patreon username, patreon logo"},
+      {"name":"Supra","profile":"supra","default_n_steps":50,"default_guidance_scale":2,"default_strength":0.76,"default_negative_prompt":"(deformed iris, deformed pupils), worst quality, low quality, blurry, text"},
+      {"name":"Evo","profile":"evo","default_n_steps":40,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"(worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth, watermark)"},
+      {"name":"Toon","profile":"toon","default_n_steps":53,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"score_6, score_5, score_4, ugly face, mutated hands, ahegao, bad eyes, monochrome, sketch, ugly style"},
+      {"name":"HyperX","profile":"hyperx","default_n_steps":28,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"blur, bad quality, bad composition, copyright, watermark, lineart, pixelated, pixelart, drawing, painting, sketch"},
+      {"name":"FurXL Classic","profile":"furxl","default_n_steps":40,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"(worst quality, low quality), watermarks, signature, (interlocked fingers)"},
+      {"name":"Illustrious","profile":"illustrious","default_n_steps":53,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"bad quality, worst quality, worst detail, sketch, censor, signature, watermark, patreon username, patreon logo"},
+      {"name":"Real Amateurs","profile":"real_amateurs","default_n_steps":25,"default_guidance_scale":3.5,"default_strength":0.76,"default_negative_prompt":"asymmetrical-eyes, mismatched eyes, deformed eyes, (turkey-neck:1.2)"},
+      {"name":"RealX","profile":"realx","default_n_steps":30,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"CyberRealistic_Negative_PONY_V2, watermark, logo, label"},
+      {"name":"Real Classic","profile":"realclassic","default_n_steps":28,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"watermark, logomark, text, score 1, score 2, score 3, text, cartoon, anime, worst quality, low quality, bad anatomy, bad hands, bad eyes"}
+    ];
     const state = {
       models: [],
       aspectMap: {},
@@ -836,6 +889,10 @@
       dom.modalImage.src = "";
     }
 
+    function currentCatalog() {
+      return dom.generationMode.value === "nsfw" ? NSFW_MODELS : SFW_MODELS;
+    }
+
     function loadDefaultsIntoForm() {
       const model = selectedModel();
       if (!model) return;
@@ -865,40 +922,32 @@
     async function loadModels() {
       state.serverUrl = getServerUrl();
       dom.serverUrl.value = state.serverUrl;
-      try {
-        const res = await fetch(`${state.serverUrl}/models`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        state.models = data.models || [];
-        dom.model.innerHTML = "";
-        state.models.forEach((model) => {
-          const option = document.createElement("option");
-          option.value = model.name;
-          option.textContent = model.name;
-          dom.model.appendChild(option);
-        });
-        dom.quality.innerHTML = "";
-        (data.quality_choices || ["Fast", "High Quality"]).forEach((q) => {
-          const option = document.createElement("option");
-          option.value = q;
-          option.textContent = q;
-          dom.quality.appendChild(option);
-        });
-        dom.aspect.innerHTML = "";
-        (data.aspect_choices || ["1:1", "16:9", "5:2", "4:5", "4:7"]).forEach((a) => {
-          const option = document.createElement("option");
-          option.value = a;
-          option.textContent = a;
-          dom.aspect.appendChild(option);
-        });
-        loadDefaultsIntoForm();
-        setStatus("Server: online", true);
-        renderHistory();
-        renderTasks();
-      } catch (error) {
-        setStatus("Server: offline or unreachable");
-        dom.defaultsLine.textContent = `Failed to load models: ${error.message}`;
-      }
+      state.models = currentCatalog();
+      dom.model.innerHTML = "";
+      state.models.forEach((model) => {
+        const option = document.createElement("option");
+        option.value = model.name;
+        option.textContent = model.name;
+        dom.model.appendChild(option);
+      });
+      dom.quality.innerHTML = "";
+      ["Fast", "High Quality", "4k+"].forEach((q) => {
+        const option = document.createElement("option");
+        option.value = q;
+        option.textContent = q;
+        dom.quality.appendChild(option);
+      });
+      dom.aspect.innerHTML = "";
+      ["1:1", "16:9", "5:2", "4:5", "4:7"].forEach((a) => {
+        const option = document.createElement("option");
+        option.value = a;
+        option.textContent = a;
+        dom.aspect.appendChild(option);
+      });
+      loadDefaultsIntoForm();
+      setStatus(dom.generationMode.value === "nsfw" ? "NSFW mode ready" : "Standard mode ready", true);
+      renderHistory();
+      renderTasks();
     }
 
     function collectRequestBody() {
@@ -949,7 +998,6 @@
     dom.serverUrl.addEventListener("change", () => {
       state.serverUrl = dom.serverUrl.value.trim().replace(/\/$/, "");
       localStorage.setItem("imgnai_server_url", state.serverUrl);
-      loadModels();
     });
 
     dom.generationMode.addEventListener("change", () => {
@@ -975,6 +1023,8 @@
     dom.generateBtn.addEventListener("click", async () => {
       try {
         if (!state.modeChosen) throw new Error("Choose Standard or NSFW mode first.");
+        const chosenMode = dom.generationMode.value;
+        state.models = currentCatalog();
         const body = collectRequestBody();
         if (!body.prompt) throw new Error("Prompt is required.");
         const taskId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
