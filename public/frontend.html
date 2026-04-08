@@ -127,6 +127,10 @@
       margin-bottom: 16px;
     }
 
+    .field.compact {
+      margin-bottom: 12px;
+    }
+
     label {
       font-size: 13px;
       color: var(--muted);
@@ -185,6 +189,11 @@
       height: 18px;
       margin: 0;
       accent-color: var(--accent);
+    }
+
+    .toggle.toggle-alert {
+      border-color: rgba(255, 119, 191, 0.45);
+      background: rgba(255, 119, 191, 0.08);
     }
 
     .actions {
@@ -371,6 +380,7 @@
     .status-running { background: rgba(103, 215, 255, 0.14); color: #9be8ff; }
     .status-done { background: rgba(90, 232, 150, 0.14); color: #b9f8d0; }
     .status-failed { background: rgba(255, 106, 106, 0.14); color: #ffb1b1; }
+    .status-badged { background: rgba(255, 119, 191, 0.14); color: #ffc0df; }
 
     .modal {
       position: fixed;
@@ -539,7 +549,7 @@
         <h1>PromptStore</h1>
         <p>A focused prompt workspace for generating, reviewing, and storing image ideas from your remote ImgNai server.</p>
       </div>
-      <div class="status" id="serverStatus">Checking connection...</div>
+      <div class="status" id="serverStatus">Choose generation mode</div>
     </section>
 
     <section class="workspace">
@@ -557,6 +567,19 @@
             <div class="small" id="defaultsLine">Loading models...</div>
           </header>
           <div class="body">
+          <div class="field compact">
+            <label for="generationMode">Generation Mode</label>
+            <select id="generationMode">
+              <option value="">Choose mode...</option>
+              <option value="standard">Standard</option>
+              <option value="nsfw">NSFW</option>
+            </select>
+          </div>
+
+          <div class="field" id="serverNote">
+            <div class="small">Pick NSFW or Standard first. The app will connect to the correct server before loading models.</div>
+          </div>
+
           <div class="field" style="display:none;">
             <label for="serverUrl">Server URL</label>
             <input id="serverUrl" />
@@ -577,15 +600,6 @@
               <select id="aspect"></select>
             </div>
           </div>
-
-          <div class="field">
-            <label for="nsfwPrompt">NSFW</label>
-            <div class="toggle">
-              <input id="nsfwPrompt" type="checkbox" />
-              <span>Enable NSFW generation</span>
-            </div>
-          </div>
-
           <div class="field">
             <label for="prompt">Prompt</label>
             <textarea id="prompt" placeholder="Describe the image you want to generate..."></textarea>
@@ -631,14 +645,17 @@
 
   <script>
     window.__SERVER_URL__ = "__SERVER_URL__";
+    window.__SERVER_URL_NSFW__ = "__SERVER_URL_NSFW__";
     const state = {
       models: [],
       aspectMap: {},
-      serverUrl: (window.__SERVER_URL__ || localStorage.getItem("imgnai_server_url") || "http://10.0.0.249:8000").trim().replace(/\/$/, ""),
+      serverUrl: "",
       modelDefaults: null,
       lastGenerated: [],
       history: JSON.parse(localStorage.getItem("promptstore_history") || "[]"),
       tasks: JSON.parse(localStorage.getItem("promptstore_tasks") || "[]"),
+      modeChosen: false,
+      generationMode: "",
     };
 
     const el = (id) => document.getElementById(id);
@@ -646,13 +663,14 @@
     const dom = {
       serverUrl: el("serverUrl"),
       serverStatus: el("serverStatus"),
+      serverNote: el("serverNote"),
+      generationMode: el("generationMode"),
       model: el("model"),
       quality: el("quality"),
       aspect: el("aspect"),
       seed: el("seed"),
       prompt: el("prompt"),
       negativePrompt: el("negativePrompt"),
-      nsfwPrompt: el("nsfwPrompt"),
       generateBtn: el("generateBtn"),
       clearBtn: el("clearBtn"),
       gallery: el("gallery"),
@@ -680,6 +698,12 @@
       dom.serverStatus.style.color = good ? "#bff7d0" : "var(--muted)";
     }
 
+    function getServerUrl() {
+      const standardFallback = window.__SERVER_URL__ || localStorage.getItem("imgnai_server_url") || "http://10.0.0.249:8000";
+      const chosen = dom.generationMode.value === "nsfw" ? window.__SERVER_URL_NSFW__ : standardFallback;
+      return (chosen || standardFallback).trim().replace(/\/$/, "");
+    }
+
     function selectedModel() {
       return state.models.find((m) => m.name === dom.model.value) || null;
     }
@@ -705,7 +729,9 @@
       dom.prompt.value = item.prompt || "";
       dom.seed.value = item.seed === null || item.seed === undefined || item.seed === "Random" ? "" : item.seed;
       dom.negativePrompt.value = item.negative_prompt || (selectedModel()?.default_negative_prompt || "");
-      dom.nsfwPrompt.checked = !!item.nsfw;
+      dom.generationMode.value = item.nsfw ? "nsfw" : "standard";
+      state.modeChosen = true;
+      state.generationMode = dom.generationMode.value;
       loadDefaultsIntoForm();
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -818,7 +844,26 @@
       dom.defaultsLine.textContent = `Defaults: profile=${model.profile}, steps=${model.default_n_steps}, cfg=${model.default_guidance_scale}`;
     }
 
+    function setModeReady() {
+      state.modeChosen = true;
+      state.generationMode = dom.generationMode.value;
+      dom.model.disabled = false;
+      dom.quality.disabled = false;
+      dom.aspect.disabled = false;
+      dom.prompt.disabled = false;
+      dom.negativePrompt.disabled = false;
+      dom.seed.disabled = false;
+      dom.generateBtn.disabled = false;
+      dom.serverNote.textContent = dom.generationMode.value === "nsfw"
+        ? "NSFW mode selected. Loading the NSFW server."
+        : "Standard mode selected. Loading the standard server.";
+      state.serverUrl = getServerUrl();
+      dom.serverUrl.value = state.serverUrl;
+      loadModels();
+    }
+
     async function loadModels() {
+      state.serverUrl = getServerUrl();
       dom.serverUrl.value = state.serverUrl;
       try {
         const res = await fetch(`${state.serverUrl}/models`);
@@ -865,7 +910,7 @@
         aspect: dom.aspect.value,
         prompt: dom.prompt.value.trim(),
         seed: dom.seed.value ? Number(dom.seed.value) : null,
-        nsfw: dom.nsfwPrompt.checked,
+        nsfw: dom.generationMode.value === "nsfw",
         negative_prompt: dom.negativePrompt.value.trim(),
       };
     }
@@ -907,6 +952,11 @@
       loadModels();
     });
 
+    dom.generationMode.addEventListener("change", () => {
+      if (!dom.generationMode.value) return;
+      setModeReady();
+    });
+
     dom.model.addEventListener("change", loadDefaultsIntoForm);
 
     dom.clearBtn.addEventListener("click", () => {
@@ -924,6 +974,7 @@
 
     dom.generateBtn.addEventListener("click", async () => {
       try {
+        if (!state.modeChosen) throw new Error("Choose Standard or NSFW mode first.");
         const body = collectRequestBody();
         if (!body.prompt) throw new Error("Prompt is required.");
         const taskId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -990,7 +1041,14 @@
 
     renderHistory();
     renderTasks();
-    loadModels();
+    dom.model.disabled = true;
+    dom.quality.disabled = true;
+    dom.aspect.disabled = true;
+    dom.prompt.disabled = true;
+    dom.negativePrompt.disabled = true;
+    dom.seed.disabled = true;
+    dom.generateBtn.disabled = true;
+    dom.serverNote.textContent = "Choose Standard or NSFW mode to continue.";
   </script>
 </body>
 </html>
