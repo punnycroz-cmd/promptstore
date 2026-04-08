@@ -31,10 +31,109 @@
     }
 
     .shell {
-      width: min(1320px, calc(100% - 32px));
-      margin: 20px auto 28px;
+      width: min(1400px, calc(100% - 24px));
+      margin: 12px auto 24px;
       display: grid;
       gap: 20px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: rgba(10, 10, 14, 0.8);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: grid;
+      gap: 3px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.04em;
+    }
+
+    .brand .small {
+      font-size: 12px;
+    }
+
+    .mode-switch,
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .mode-switch::-webkit-scrollbar,
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mode-btn,
+    .nav-btn {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .mode-btn:hover,
+    .nav-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255, 119, 191, 0.4);
+    }
+
+    .mode-btn.active,
+    .nav-btn.active {
+      background: linear-gradient(135deg, rgba(255, 119, 191, 0.22), rgba(103, 215, 255, 0.16));
+      border-color: rgba(255, 119, 191, 0.55);
+      box-shadow: 0 12px 28px rgba(255, 119, 191, 0.12);
+    }
+
+    .app {
+      display: grid;
+      gap: 18px;
+    }
+
+    .view {
+      display: none;
+      gap: 18px;
+    }
+
+    .view.active {
+      display: grid;
+    }
+
+    .generate-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.95fr) minmax(320px, 1.05fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
     }
 
     .hero {
@@ -53,7 +152,7 @@
 
     .hero h1 {
       margin: 0;
-      font-size: clamp(34px, 5vw, 60px);
+      font-size: clamp(30px, 4vw, 54px);
       letter-spacing: -0.05em;
     }
 
@@ -80,13 +179,6 @@
       display: grid;
       grid-template-columns: 1fr;
       gap: 20px;
-    }
-
-    .workspace {
-      display: grid;
-      grid-template-columns: 280px minmax(0, 1fr) 320px;
-      gap: 20px;
-      align-items: start;
     }
 
     .card {
@@ -382,6 +474,95 @@
     .status-failed { background: rgba(255, 106, 106, 0.14); color: #ffb1b1; }
     .status-badged { background: rgba(255, 119, 191, 0.14); color: #ffc0df; }
 
+    .status-pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+      justify-self: end;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: end;
+      align-self: start;
+    }
+
+    .hero-badge {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .history-grid,
+    .tasks-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .history-card,
+    .task-card {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      display: grid;
+      gap: 10px;
+    }
+
+    .history-thumb-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: thin;
+    }
+
+    .history-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 14px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      flex: 0 0 auto;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .history-thumb:hover {
+      transform: scale(1.03);
+    }
+
+    .history-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .history-title {
+      font-weight: 700;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    .history-sub {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
     .modal {
       position: fixed;
       inset: 0;
@@ -494,13 +675,77 @@
     }
 
     @media (max-width: 960px) {
-      .grid { grid-template-columns: 1fr; }
-      .workspace { grid-template-columns: 1fr; }
+      .topbar { grid-template-columns: 1fr; }
+      .mode-switch, .nav-tabs { justify-content: start; overflow-x: auto; flex-wrap: nowrap; }
+      .generate-grid { grid-template-columns: 1fr; }
       .row, .row-3 { grid-template-columns: 1fr; }
       .hero { grid-template-columns: 1fr; }
+      .hero-actions { justify-content: start; }
       .modal-body { grid-template-columns: 1fr; }
       .modal-info { border-left: 0; border-top: 1px solid var(--border); }
       .gallery { column-count: 1; }
+      .shell { width: min(100% - 16px, 100%); }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 12px, 100%);
+        margin: 8px auto 18px;
+      }
+
+      .topbar {
+        padding: 12px;
+        border-radius: 20px;
+      }
+
+      .brand h1 {
+        font-size: 20px;
+      }
+
+      .card,
+      .hero,
+      .modal-panel {
+        border-radius: 22px;
+      }
+
+      .card header,
+      .card .body,
+      .hero {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .hero {
+        gap: 14px;
+      }
+
+      .field {
+        margin-bottom: 12px;
+      }
+
+      .btn,
+      .mini-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .mode-btn,
+      .nav-btn {
+        width: auto;
+        min-width: max-content;
+      }
+
+      .actions,
+      .rail-actions,
+      .hero-actions,
+      .modal-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .art-actions {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -543,78 +788,78 @@
       </div>
     </div>
   </div>
-  <main class="shell">
-    <section class="hero">
-      <div>
-        <h1>PromptStore</h1>
-        <p>A focused prompt workspace for generating, reviewing, and storing image ideas from your remote ImgNai server.</p>
-      </div>
-      <div class="status" id="serverStatus">Choose generation mode</div>
-    </section>
+  <header class="topbar">
+    <div class="brand">
+      <h1>PromptStore</h1>
+      <div class="small" id="serverStatus">Choose generation mode</div>
+    </div>
+    <div class="mode-switch" role="tablist" aria-label="Generation mode">
+      <button class="mode-btn" id="modeStandard" type="button" data-mode="standard">Standard</button>
+      <button class="mode-btn" id="modeNsfw" type="button" data-mode="nsfw">NSFW</button>
+    </div>
+    <div class="nav-tabs" role="tablist" aria-label="Workspace views">
+      <button class="nav-btn active" type="button" data-view="generate">Create</button>
+      <button class="nav-btn" type="button" data-view="tasks">Tasks</button>
+      <button class="nav-btn" type="button" data-view="history">History</button>
+    </div>
+  </header>
 
-    <section class="workspace">
-      <article class="card">
-        <header><h2>Prompt History</h2><div class="small" id="historyCount">0 saved</div></header>
-        <div class="body">
-          <div class="rail-list" id="historyList"></div>
+  <main class="shell app">
+    <section class="view active" data-view-panel="generate">
+      <section class="hero">
+        <div>
+          <h1 id="heroTitle">Build prompts fast</h1>
+          <p id="heroCopy">Switch modes instantly, pick the right model, and keep your last-used settings close at hand.</p>
         </div>
-      </article>
+        <div class="hero-actions">
+          <div class="hero-badge" id="modeStatus">Choose Standard or NSFW</div>
+          <div class="status-pill" id="defaultsLine">Choose a mode to load models</div>
+        </div>
+      </section>
 
-      <div class="stack">
+      <div class="generate-grid">
         <article class="card">
           <header>
             <h2>Create Prompt</h2>
-            <div class="small" id="defaultsLine">Loading models...</div>
+            <div class="small">Fast model switching</div>
           </header>
           <div class="body">
-          <div class="field compact">
-            <label for="generationMode">Generation Mode</label>
-            <select id="generationMode">
-              <option value="">Choose mode...</option>
-              <option value="standard">Standard</option>
-              <option value="nsfw">NSFW</option>
-            </select>
-          </div>
-
-          <div class="field" id="serverNote">
-            <div class="small">Pick NSFW or Standard first. The app will connect to the correct server before loading models.</div>
-          </div>
-
-          <div class="field" style="display:none;">
-            <label for="serverUrl">Server URL</label>
-            <input id="serverUrl" />
-          </div>
-
-          <div class="field">
-            <label for="model">Model</label>
-            <select id="model"></select>
-          </div>
-
-          <div class="row">
-            <div class="field">
-              <label for="quality">Quality</label>
-              <select id="quality"></select>
+            <div class="field" style="display:none;">
+              <label for="serverUrl">Server URL</label>
+              <input id="serverUrl" />
             </div>
-            <div class="field">
-              <label for="aspect">Aspect Ratio</label>
-              <select id="aspect"></select>
-            </div>
-          </div>
-          <div class="field">
-            <label for="prompt">Prompt</label>
-            <textarea id="prompt" placeholder="Describe the image you want to generate..."></textarea>
-          </div>
 
-          <div class="row">
             <div class="field">
-              <label for="negativePrompt">Negative Prompt</label>
-              <textarea id="negativePrompt" placeholder="Leave empty for no negative prompt"></textarea>
+              <label for="model">Model</label>
+              <select id="model"></select>
             </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="quality">Quality</label>
+                <select id="quality"></select>
+              </div>
+              <div class="field">
+                <label for="aspect">Aspect Ratio</label>
+                <select id="aspect"></select>
+              </div>
+            </div>
+
             <div class="field">
-              <label for="seed">Seed</label>
-              <input id="seed" type="number" placeholder="Leave blank for random" />
+              <label for="prompt">Prompt</label>
+              <textarea id="prompt" placeholder="Describe the image you want to generate..."></textarea>
             </div>
-          </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="negativePrompt">Negative Prompt</label>
+                <textarea id="negativePrompt" placeholder="Leave empty for no negative prompt"></textarea>
+              </div>
+              <div class="field">
+                <label for="seed">Seed</label>
+                <input id="seed" type="number" placeholder="Leave blank for random" />
+              </div>
+            </div>
 
             <div class="actions">
               <button class="btn btn-primary" id="generateBtn">Generate</button>
@@ -633,11 +878,28 @@
           </div>
         </article>
       </div>
+    </section>
 
+    <section class="view" data-view-panel="tasks">
       <article class="card">
-        <header><h2>Task Queue</h2><div class="small" id="taskCount">0 tasks</div></header>
+        <header>
+          <h2>Task Queue</h2>
+          <div class="small" id="taskCount">0 tasks</div>
+        </header>
         <div class="body">
-          <div class="rail-list" id="taskList"></div>
+          <div class="tasks-grid" id="taskList"></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="view" data-view-panel="history">
+      <article class="card">
+        <header>
+          <h2>Prompt History</h2>
+          <div class="small" id="historyCount">0 saved</div>
+        </header>
+        <div class="body">
+          <div class="history-grid" id="historyList"></div>
         </div>
       </article>
     </section>
@@ -701,14 +963,15 @@
     ];
     const state = {
       models: [],
-      aspectMap: {},
       serverUrl: "",
       modelDefaults: null,
       lastGenerated: [],
       history: JSON.parse(localStorage.getItem("promptstore_history") || "[]"),
       tasks: JSON.parse(localStorage.getItem("promptstore_tasks") || "[]"),
       modeChosen: false,
-      generationMode: "",
+      activeMode: localStorage.getItem("promptstore_mode") || "",
+      activeView: localStorage.getItem("promptstore_view") || "generate",
+      lastModelByMode: JSON.parse(localStorage.getItem("promptstore_last_models") || "{}"),
     };
 
     const el = (id) => document.getElementById(id);
@@ -716,8 +979,8 @@
     const dom = {
       serverUrl: el("serverUrl"),
       serverStatus: el("serverStatus"),
-      serverNote: el("serverNote"),
-      generationMode: el("generationMode"),
+      modeStandard: el("modeStandard"),
+      modeNsfw: el("modeNsfw"),
       model: el("model"),
       quality: el("quality"),
       aspect: el("aspect"),
@@ -733,6 +996,11 @@
       taskCount: el("taskCount"),
       taskList: el("taskList"),
       defaultsLine: el("defaultsLine"),
+      heroTitle: el("heroTitle"),
+      heroCopy: el("heroCopy"),
+      modeStatus: el("modeStatus"),
+      navButtons: Array.from(document.querySelectorAll("[data-view]")),
+      modeButtons: Array.from(document.querySelectorAll("[data-mode]")),
       modal: el("modal"),
       modalTitle: el("modalTitle"),
       modalSubtitle: el("modalSubtitle"),
@@ -753,7 +1021,7 @@
 
     function getServerUrl() {
       const standardFallback = window.__SERVER_URL__ || localStorage.getItem("imgnai_server_url") || "http://10.0.0.249:8000";
-      const chosen = dom.generationMode.value === "nsfw" ? window.__SERVER_URL_NSFW__ : standardFallback;
+      const chosen = state.activeMode === "nsfw" ? window.__SERVER_URL_NSFW__ : standardFallback;
       return (chosen || standardFallback).trim().replace(/\/$/, "");
     }
 
@@ -764,6 +1032,9 @@
     function persistStore() {
       localStorage.setItem("promptstore_history", JSON.stringify(state.history.slice(0, 30)));
       localStorage.setItem("promptstore_tasks", JSON.stringify(state.tasks.slice(0, 30)));
+      localStorage.setItem("promptstore_mode", state.activeMode || "");
+      localStorage.setItem("promptstore_view", state.activeView || "generate");
+      localStorage.setItem("promptstore_last_models", JSON.stringify(state.lastModelByMode || {}));
     }
 
     function statusClass(status) {
@@ -776,35 +1047,51 @@
     }
 
     function reuseTask(item) {
+      applyMode(item.nsfw ? "nsfw" : "standard", true);
       dom.model.value = item.model || dom.model.value;
       dom.quality.value = item.quality || dom.quality.value;
       dom.aspect.value = item.aspect || dom.aspect.value;
       dom.prompt.value = item.prompt || "";
       dom.seed.value = item.seed === null || item.seed === undefined || item.seed === "Random" ? "" : item.seed;
-      dom.negativePrompt.value = item.negative_prompt || (selectedModel()?.default_negative_prompt || "");
-      dom.generationMode.value = item.nsfw ? "nsfw" : "standard";
-      state.modeChosen = true;
-      state.generationMode = dom.generationMode.value;
-      loadDefaultsIntoForm();
+      dom.negativePrompt.value = item.negative_prompt !== undefined
+        ? item.negative_prompt
+        : (selectedModel()?.default_negative_prompt || "");
+      state.lastModelByMode[state.activeMode] = dom.model.value;
+      persistStore();
+      loadDefaultsIntoForm({ preserveNegativePrompt: true });
+      setView("generate");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function renderHistory() {
       dom.historyCount.textContent = `${state.history.length} saved`;
+      if (!state.history.length) {
+        dom.historyList.innerHTML = `
+          <div class="history-card">
+            <div class="history-title">No saved prompts yet</div>
+            <div class="history-sub">Completed generations will appear here with thumbnails, metadata, and reuse actions.</div>
+          </div>
+        `;
+        return;
+      }
       dom.historyList.innerHTML = state.history.map((item) => `
-        <div class="rail-item">
-          <div class="rail-top">
+        <div class="history-card">
+          <div class="history-meta">
             <div>
-              <div class="rail-title">${item.model} · ${item.quality} · ${item.aspect}</div>
-              <div class="rail-sub">${item.prompt || ""}</div>
+              <div class="history-title">${item.model} · ${item.quality} · ${item.aspect}</div>
+              <div class="history-sub">${item.prompt || ""}</div>
             </div>
             <span class="status-chip ${statusClass(item.status)}">${item.status}</span>
           </div>
           <div class="tag-row">
-            <span class="tag">${item.images || 0} images</span>
+            <span class="tag">${item.images?.length || item.images || 0} images</span>
             <span class="tag">${item.created || ""}</span>
+            <span class="tag">${item.nsfw ? "NSFW" : "Standard"}</span>
           </div>
-          <div class="rail-sub">${item.detail || ""}</div>
+          <div class="history-thumb-row">
+            ${(item.image_urls || []).map((url) => `<img class="history-thumb" src="${url}" alt="History thumbnail" data-history-thumb="${item.id}" data-image-url="${url}">`).join("")}
+          </div>
+          <div class="history-sub">${item.detail || ""}</div>
           <div class="rail-actions">
             <button class="mini-btn" type="button" data-reuse-history="${item.id}">Reuse prompt</button>
           </div>
@@ -816,16 +1103,37 @@
           if (item) reuseTask(item);
         });
       });
+      dom.historyList.querySelectorAll("[data-image-url]").forEach((thumb) => {
+        thumb.addEventListener("click", () => {
+          const item = state.history.find((entry) => entry.id === thumb.getAttribute("data-history-thumb"));
+          if (!item) return;
+          openModal({
+            ...item,
+            url: thumb.getAttribute("data-image-url"),
+            resolution: item.aspect,
+            seed: item.seed,
+          });
+        });
+      });
     }
 
     function renderTasks() {
       dom.taskCount.textContent = `${state.tasks.length} tasks`;
+      if (!state.tasks.length) {
+        dom.taskList.innerHTML = `
+          <div class="task-card">
+            <div class="history-title">No active tasks</div>
+            <div class="history-sub">Queued or generating jobs will appear here while the server works.</div>
+          </div>
+        `;
+        return;
+      }
       dom.taskList.innerHTML = state.tasks.map((item) => `
-        <div class="rail-item">
-          <div class="rail-top">
+        <div class="task-card">
+          <div class="history-meta">
             <div>
-              <div class="rail-title">${item.model} · ${item.quality}</div>
-              <div class="rail-sub">${item.prompt || ""}</div>
+              <div class="history-title">${item.model} · ${item.quality}</div>
+              <div class="history-sub">${item.prompt || ""}</div>
             </div>
             <span class="status-chip ${statusClass(item.status)}">${item.status}</span>
           </div>
@@ -834,7 +1142,7 @@
             <span class="tag">seed: ${item.seed ?? "random"}</span>
             <span class="tag">${item.task_uuids?.length || 0} jobs</span>
           </div>
-          <div class="rail-sub">${item.detail || ""}</div>
+          <div class="history-sub">${item.detail || ""}</div>
           <div class="rail-actions">
             <button class="mini-btn" type="button" data-reuse-task="${item.id}">Reuse task</button>
           </div>
@@ -889,21 +1197,38 @@
       dom.modalImage.src = "";
     }
 
-    function currentCatalog() {
-      return dom.generationMode.value === "nsfw" ? NSFW_MODELS : SFW_MODELS;
-    }
-
-    function loadDefaultsIntoForm() {
+    function loadDefaultsIntoForm({ preserveNegativePrompt = false } = {}) {
       const model = selectedModel();
       if (!model) return;
       state.modelDefaults = model;
-      dom.negativePrompt.value = model.default_negative_prompt || "";
+      if (!preserveNegativePrompt) {
+        dom.negativePrompt.value = model.default_negative_prompt || "";
+      }
       dom.defaultsLine.textContent = `Defaults: profile=${model.profile}, steps=${model.default_n_steps}, cfg=${model.default_guidance_scale}`;
     }
 
-    function setModeReady() {
-      state.modeChosen = true;
-      state.generationMode = dom.generationMode.value;
+    function setView(view) {
+      state.activeView = view;
+      persistStore();
+      document.querySelectorAll("[data-view-panel]").forEach((panel) => {
+        panel.classList.toggle("active", panel.getAttribute("data-view-panel") === view);
+      });
+      dom.navButtons.forEach((btn) => {
+        btn.classList.toggle("active", btn.getAttribute("data-view") === view);
+      });
+    }
+
+    function currentCatalog() {
+      return state.activeMode === "nsfw" ? NSFW_MODELS : SFW_MODELS;
+    }
+
+    function applyMode(mode, preserveSelections = false) {
+      state.activeMode = mode;
+      state.modeChosen = !!mode;
+      state.serverUrl = getServerUrl();
+      dom.serverUrl.value = state.serverUrl;
+      dom.modeButtons.forEach((btn) => btn.classList.toggle("active", btn.getAttribute("data-mode") === mode));
+      dom.modeStatus.textContent = mode === "nsfw" ? "NSFW mode active" : "Standard mode active";
       dom.model.disabled = false;
       dom.quality.disabled = false;
       dom.aspect.disabled = false;
@@ -911,20 +1236,10 @@
       dom.negativePrompt.disabled = false;
       dom.seed.disabled = false;
       dom.generateBtn.disabled = false;
-      dom.serverNote.textContent = dom.generationMode.value === "nsfw"
-        ? "NSFW mode selected. Loading the NSFW server."
-        : "Standard mode selected. Loading the standard server.";
-      state.serverUrl = getServerUrl();
-      dom.serverUrl.value = state.serverUrl;
-      loadModels();
-    }
-
-    async function loadModels() {
-      state.serverUrl = getServerUrl();
-      dom.serverUrl.value = state.serverUrl;
-      state.models = currentCatalog();
+      const catalog = currentCatalog();
+      state.models = catalog;
       dom.model.innerHTML = "";
-      state.models.forEach((model) => {
+      catalog.forEach((model) => {
         const option = document.createElement("option");
         option.value = model.name;
         option.textContent = model.name;
@@ -944,10 +1259,40 @@
         option.textContent = a;
         dom.aspect.appendChild(option);
       });
+      const lastModel = state.lastModelByMode[mode];
+      dom.model.value = lastModel && catalog.some((m) => m.name === lastModel) ? lastModel : catalog[0]?.name || "";
+      if (dom.model.value) state.lastModelByMode[mode] = dom.model.value;
+      persistStore();
       loadDefaultsIntoForm();
-      setStatus(dom.generationMode.value === "nsfw" ? "NSFW mode ready" : "Standard mode ready", true);
+      setStatus(mode === "nsfw" ? "NSFW mode ready" : "Standard mode ready", true);
+      dom.defaultsLine.textContent = state.modelDefaults
+        ? `Defaults: profile=${state.modelDefaults.profile}, steps=${state.modelDefaults.default_n_steps}, cfg=${state.modelDefaults.default_guidance_scale}`
+        : "Choose a model";
       renderHistory();
       renderTasks();
+      if (!preserveSelections) {
+        // Keep existing prompt text, but update model defaults for the chosen mode.
+      }
+    }
+
+    function lockWorkspace() {
+      state.modeChosen = false;
+      dom.modeButtons.forEach((btn) => btn.classList.remove("active"));
+      dom.serverUrl.value = "";
+      dom.modeStatus.textContent = "Choose Standard or NSFW";
+      dom.defaultsLine.textContent = "Choose a mode to load models";
+      setStatus("Choose generation mode");
+      dom.model.innerHTML = "";
+      dom.quality.innerHTML = "";
+      dom.aspect.innerHTML = "";
+      dom.model.options.length = 0;
+      dom.model.disabled = true;
+      dom.quality.disabled = true;
+      dom.aspect.disabled = true;
+      dom.prompt.disabled = true;
+      dom.negativePrompt.disabled = true;
+      dom.seed.disabled = true;
+      dom.generateBtn.disabled = true;
     }
 
     function collectRequestBody() {
@@ -959,7 +1304,7 @@
         aspect: dom.aspect.value,
         prompt: dom.prompt.value.trim(),
         seed: dom.seed.value ? Number(dom.seed.value) : null,
-        nsfw: dom.generationMode.value === "nsfw",
+        nsfw: state.activeMode === "nsfw",
         negative_prompt: dom.negativePrompt.value.trim(),
       };
     }
@@ -967,10 +1312,20 @@
     function renderImages(urls) {
       dom.gallery.innerHTML = "";
       state.lastGenerated = urls;
+      if (!urls.length) {
+        dom.gallery.innerHTML = `
+          <div class="history-card">
+            <div class="history-title">Your generated images will appear here</div>
+            <div class="history-sub">Open an image to preview it, or use the download button when you want to save it.</div>
+          </div>
+        `;
+        dom.imageCount.textContent = "0 images";
+        return;
+      }
       urls.forEach((item, index) => {
         const card = document.createElement("div");
         card.className = "art-card";
-        const sizeTag = item.aspect ? item.aspect : "1:1";
+        const sizeTag = item.resolution || item.aspect || "1:1";
         card.innerHTML = `
           <img src="${item.url}" alt="Generated output">
           <div class="art-meta">
@@ -989,23 +1344,33 @@
         card.addEventListener("click", () => openModal(item));
         const downloadLink = card.querySelector("a");
         downloadLink.addEventListener("click", (event) => event.stopPropagation());
-        const img = document.createElement("img");
         dom.gallery.appendChild(card);
       });
       dom.imageCount.textContent = `${urls.length} image${urls.length === 1 ? "" : "s"}`;
     }
+
+    dom.modeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        applyMode(button.getAttribute("data-mode"));
+        setView("generate");
+      });
+    });
+
+    dom.navButtons.forEach((button) => {
+      button.addEventListener("click", () => setView(button.getAttribute("data-view")));
+    });
 
     dom.serverUrl.addEventListener("change", () => {
       state.serverUrl = dom.serverUrl.value.trim().replace(/\/$/, "");
       localStorage.setItem("imgnai_server_url", state.serverUrl);
     });
 
-    dom.generationMode.addEventListener("change", () => {
-      if (!dom.generationMode.value) return;
-      setModeReady();
+    dom.model.addEventListener("change", () => {
+      if (!state.modeChosen) return;
+      state.lastModelByMode[state.activeMode] = dom.model.value;
+      persistStore();
+      loadDefaultsIntoForm();
     });
-
-    dom.model.addEventListener("change", loadDefaultsIntoForm);
 
     dom.clearBtn.addEventListener("click", () => {
       dom.gallery.innerHTML = "";
@@ -1023,7 +1388,6 @@
     dom.generateBtn.addEventListener("click", async () => {
       try {
         if (!state.modeChosen) throw new Error("Choose Standard or NSFW mode first.");
-        const chosenMode = dom.generationMode.value;
         state.models = currentCatalog();
         const body = collectRequestBody();
         if (!body.prompt) throw new Error("Prompt is required.");
@@ -1072,6 +1436,7 @@
           detail: `${images.length} image${images.length === 1 ? "" : "s"} ready.`,
           task_uuids: data.task_uuids || [],
           images: images.length,
+          image_urls: data.image_urls || [],
           created: new Date().toLocaleString(),
         };
         state.tasks = state.tasks.filter((item) => item.id !== taskId);
@@ -1091,14 +1456,12 @@
 
     renderHistory();
     renderTasks();
-    dom.model.disabled = true;
-    dom.quality.disabled = true;
-    dom.aspect.disabled = true;
-    dom.prompt.disabled = true;
-    dom.negativePrompt.disabled = true;
-    dom.seed.disabled = true;
-    dom.generateBtn.disabled = true;
-    dom.serverNote.textContent = "Choose Standard or NSFW mode to continue.";
+    if (state.activeMode === "standard" || state.activeMode === "nsfw") {
+      applyMode(state.activeMode, true);
+    } else {
+      lockWorkspace();
+    }
+    setView(state.activeView === "tasks" || state.activeView === "history" ? state.activeView : "generate");
   </script>
 </body>
 </html>
