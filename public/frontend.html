@@ -4,830 +4,197 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PromptStore · The Spirit Studio</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
+    <title>PromptStore | Aether Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
         :root {
-            --sky-a: #b3d4e8;
-            --sky-b: #d8e8c5;
-            --star-op: 0;
-            --moon-op: 0;
-            --ff-op: 0;
-            --lantern-bright: 0.55;
-            --ink: #1a1008;
-            --ink2: #4a3820;
-            --ink3: #7a6040;
-            --parchment: #f4edd8;
-            --parchment2: #e8dfc0;
-            --parchment3: #ddd0a8;
-            --wood: #5c3820;
-            --wood2: #7a4a28;
-            --wood3: #3a2010;
-            --moss: #3d7a2a;
-            --moss2: #2d5c1e;
-            --moss3: #5a9e40;
-            --amber: #d4882a;
-            --amber2: #f5a830;
-            --amber3: #b06010;
-            --rose: #c87060;
-            --panel-bg: rgba(244, 237, 216, 0.88);
-            --panel-border: rgba(140, 100, 50, 0.28);
+            /* Base Theme (Daylight / SFW / Ghibli Nature) */
+            --bg-base: #f0f7f4;
+            --blob-1: #a7f3d0;
+            --blob-2: #fde68a;
+            --blob-3: #99f6e4;
+            --panel-bg: rgba(255, 255, 255, 0.45);
+            --panel-border: rgba(255, 255, 255, 0.7);
+            --panel-shadow: rgba(0, 50, 20, 0.05);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --accent-glow: rgba(16, 185, 129, 0.4);
+            --accent-text: #ffffff;
         }
 
-        html {
-            cursor: none;
+        body[data-mode="nsfw"] {
+            /* Midnight Theme (Starlight / NSFW / Mystical Night) */
+            --bg-base: #0f172a;
+            --blob-1: #8b5cf6;
+            --blob-2: #3b82f6;
+            --blob-3: #ec4899;
+            --panel-bg: rgba(15, 23, 42, 0.55);
+            --panel-border: rgba(255, 255, 255, 0.1);
+            --panel-shadow: rgba(0, 0, 0, 0.4);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #8b5cf6;
+            --accent-hover: #7c3aed;
+            --accent-glow: rgba(139, 92, 246, 0.5);
+            --accent-text: #ffffff;
         }
 
         body {
-            font-family: 'EB Garamond', Georgia, serif;
-            color: var(--ink);
-            min-height: 100vh;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            transition: background-color 1.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s ease;
             overflow-x: hidden;
-            padding-bottom: 5rem;
-            position: relative;
+            min-height: 100vh;
+            margin: 0;
         }
 
-        /* ── Custom cursor ── */
-        #orb {
+        h1,
+        h2,
+        h3,
+        .cinematic-text {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Magical Blobs */
+        .ambient-bg {
             position: fixed;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 40% 40%, #fff, #a8d8f0 50%, #4a9abf);
-            box-shadow: 0 0 12px 4px rgba(100, 200, 255, 0.5), 0 0 4px 1px #fff;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: transform 0.05s, width 0.2s, height 0.2s;
-            mix-blend-mode: screen;
-        }
-
-        #orb.click {
-            width: 28px;
-            height: 28px;
-        }
-
-        #orb-trail {
-            position: fixed;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(180, 220, 255, 0.4);
-            pointer-events: none;
-            z-index: 9998;
-            transform: translate(-50%, -50%);
-            transition: left 0.12s ease, top 0.12s ease;
-        }
-
-        /* ── Sky ── */
-        .sky {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            background: linear-gradient(180deg, var(--sky-a) 0%, var(--sky-b) 100%);
-            transition: background 8s ease;
-        }
-
-        /* ── World SVG ── */
-        .world-svg {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-            overflow: visible;
-        }
-
-        /* ── Stars ── */
-        .star {
-            fill: #fff;
-            opacity: var(--star-op);
-            transition: opacity 8s ease;
-        }
-
-        .star-twinkle {
-            animation: twinkle ease-in-out infinite alternate;
-        }
-
-        @keyframes twinkle {
-            from {
-                opacity: 0.1
-            }
-
-            to {
-                opacity: 0.9
-            }
-        }
-
-        /* ── Celestials ── */
-        .sun-orb {
-            filter: blur(2px);
-            transition: opacity 6s, cx 30s, cy 30s;
-        }
-
-        .moon-orb {
-            opacity: var(--moon-op);
-            transition: opacity 8s ease;
-            filter: blur(0.5px);
-        }
-
-        .moon-crater {
-            fill: rgba(200, 200, 180, 0.4);
-        }
-
-        /* ── Tree sway ── */
-        .sway-a,
-        .sway-b,
-        .sway-c,
-        .sway-d,
-        .sway-e {
-            transform-box: fill-box;
-            transform-origin: 50% 100%;
-        }
-
-        .sway-a {
-            animation: sway 3.8s ease-in-out infinite alternate;
-        }
-
-        .sway-b {
-            animation: sway 4.5s ease-in-out infinite alternate;
-            animation-delay: -1.2s;
-        }
-
-        .sway-c {
-            animation: sway 5.2s ease-in-out infinite alternate;
-            animation-delay: -2.5s;
-        }
-
-        .sway-d {
-            animation: sway 3.2s ease-in-out infinite alternate;
-            animation-delay: -0.8s;
-        }
-
-        .sway-e {
-            animation: sway 6.0s ease-in-out infinite alternate;
-            animation-delay: -3.1s;
-        }
-
-        @keyframes sway {
-            from {
-                transform: rotate(-1.8deg)
-            }
-
-            to {
-                transform: rotate(1.8deg)
-            }
-        }
-
-        /* ── Grass ── */
-        .grass-blade {
-            transform-box: fill-box;
-            transform-origin: 50% 100%;
-            animation: grassway ease-in-out infinite alternate;
-        }
-
-        @keyframes grassway {
-            from {
-                transform: rotate(-4deg)
-            }
-
-            to {
-                transform: rotate(4deg)
-            }
-        }
-
-        /* ── Particles ── */
-        .particles {
-            position: fixed;
-            inset: 0;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        .lantern {
-            position: absolute;
-            border-radius: 50% 50% 45% 45%;
-            box-shadow: 0 0 30px 10px rgba(245, 168, 48, 0.6), 0 0 60px 20px rgba(245, 168, 48, 0.2);
-            animation: lanternRise linear infinite;
-            background: radial-gradient(ellipse at 50% 35%, #fff8d0, #f5a830 55%, #c07010);
-        }
-
-        @keyframes lanternRise {
-            0% {
-                transform: translateY(0) translateX(0);
-                opacity: 0;
-            }
-
-            8% {
-                opacity: .85;
-            }
-
-            92% {
-                opacity: .5;
-            }
-
-            100% {
-                transform: translateY(-75vh) translateX(var(--lx));
-                opacity: 0;
-            }
-        }
-
-        .firefly {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: #e8f840;
-            box-shadow: 0 0 8px 3px rgba(220, 248, 60, 0.7);
-            opacity: var(--ff-op);
-            animation: ffloat ease-in-out infinite;
-        }
-
-        @keyframes ffloat {
-            0% {
-                transform: translate(0, 0);
-                opacity: 0;
-            }
-
-            20% {
-                opacity: var(--ff-op);
-            }
-
-            50% {
-                transform: translate(var(--fx), var(--fy));
-            }
-
-            80% {
-                opacity: calc(var(--ff-op)*0.7);
-            }
-
-            100% {
-                transform: translate(calc(var(--fx)*2), calc(var(--fy)*1.4));
-                opacity: 0;
-            }
-        }
-
-        .petal {
-            position: absolute;
-            border-radius: 70% 0 70% 0;
-            background: linear-gradient(135deg, #f8c5d0, #f090a8);
-            animation: petaldrift linear infinite;
-            opacity: .75;
-        }
-
-        @keyframes petaldrift {
-            0% {
-                transform: translateY(-10px) rotate(0deg);
-                opacity: 0;
-            }
-
-            5% {
-                opacity: .75;
-            }
-
-            95% {
-                opacity: .3;
-            }
-
-            100% {
-                transform: translateY(105vh) rotate(var(--pr));
-                opacity: 0;
-            }
-        }
-
-        .soot {
-            position: absolute;
-            border-radius: 50%;
-            background: #100a04;
-            box-shadow: 0 0 0 2px #1a1008, 0 0 0 3px #0a0604;
-            animation: sootrun linear;
-        }
-
-        .soot::before,
-        .soot::after {
-            content: '';
-            position: absolute;
-            background: #100a04;
-            border-radius: 50%;
-        }
-
-        .soot::before {
-            width: 40%;
-            height: 40%;
-            top: -15%;
-            left: 10%;
-        }
-
-        .soot::after {
-            width: 35%;
-            height: 35%;
-            top: -10%;
-            right: 8%;
-        }
-
-        /* eyes */
-        @keyframes sootrun {
-            0% {
-                transform: translateX(-50px) translateY(0);
-            }
-
-            25% {
-                transform: translateX(var(--sx25)) translateY(-3px);
-            }
-
-            50% {
-                transform: translateX(var(--sx50)) translateY(0);
-            }
-
-            75% {
-                transform: translateX(var(--sx75)) translateY(-4px);
-            }
-
-            100% {
-                transform: translateX(110vw) translateY(0);
-            }
-        }
-
-        /* ── App shell ── */
-        .app {
-            position: relative;
-            z-index: 10;
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 1.5rem 1.2rem;
-        }
-
-        /* ── Header (wooden beam) ── */
-        .header {
-            position: sticky;
-            top: 1rem;
-            z-index: 50;
-            background: linear-gradient(180deg, #7a4a28 0%, #5c3820 60%, #3a2010 100%);
-            border-radius: 16px;
-            padding: 0 1.2rem;
-            box-shadow: 0 6px 28px rgba(30, 15, 5, 0.45), inset 0 1px 0 rgba(255, 200, 130, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.35);
-            display: flex;
-            align-items: stretch;
-            justify-content: space-between;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-bottom: 2rem;
-            border: 1px solid #2a1408;
-            min-height: 64px;
-        }
-
-        /* Wood grain on header */
-        .header::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 16px;
-            background: repeating-linear-gradient(92deg,
-                    transparent, transparent 18px,
-                    rgba(255, 255, 255, 0.02) 18px, rgba(255, 255, 255, 0.02) 19px);
-            pointer-events: none;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-family: 'Shippori Mincho B1', serif;
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #f5dba8;
-            letter-spacing: 0.06em;
-            text-decoration: none;
-            padding: 14px 0;
-        }
-
-        .logo-orb {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 35% 35%, #fff, #a8ddf8 45%, #4a9abf);
-            box-shadow: 0 0 12px 4px rgba(100, 200, 255, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
-            flex-shrink: 0;
-            animation: orbpulse 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes orbpulse {
-            from {
-                box-shadow: 0 0 10px 3px rgba(100, 200, 255, 0.45);
-            }
-
-            to {
-                box-shadow: 0 0 18px 8px rgba(100, 200, 255, 0.6);
-            }
-        }
-
-        .nav-strip {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 10px 0;
-        }
-
-        .nav-btn {
-            position: relative;
-            font-family: 'Shippori Mincho B1', serif;
-            font-size: 0.82rem;
-            letter-spacing: 0.06em;
-            padding: 7px 18px;
-            background: rgba(0, 0, 0, 0);
-            color: rgba(245, 219, 168, 0.6);
-            border: 1px solid transparent;
-            border-radius: 100px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .nav-btn:hover {
-            color: #f5dba8;
-        }
-
-        .nav-btn.active {
-            background: rgba(255, 200, 100, 0.12);
-            color: #f5dba8;
-            border-color: rgba(255, 200, 100, 0.25);
-            box-shadow: 0 0 12px rgba(245, 168, 48, 0.15);
-        }
-
-        .mode-strip {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 100px;
-            padding: 4px;
-            align-self: center;
-            border: 1px solid rgba(255, 200, 100, 0.1);
-        }
-
-        .mode-btn {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 0.08em;
-            padding: 5px 14px;
-            border-radius: 100px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            color: rgba(245, 219, 168, 0.5);
-            transition: all 0.3s;
-        }
-
-        .mode-btn.active {
-            background: var(--moss);
-            color: #d8f0c8;
-            box-shadow: 0 1px 6px rgba(60, 120, 40, 0.4);
-        }
-
-        .mode-btn[data-mode="nsfw"].active {
-            background: var(--rose);
-            color: #f8d8d0;
-            box-shadow: 0 1px 6px rgba(180, 80, 80, 0.4);
-        }
-
-        /* ── Views ── */
-        .view {
-            display: none;
-        }
-
-        .view.visible {
-            display: block;
-            animation: viewin 0.55s cubic-bezier(.25, 1, .5, 1) both;
-        }
-
-        @keyframes viewin {
-            from {
-                opacity: 0;
-                transform: translateY(16px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* ── Washi Panel ── */
-        .washi {
-            position: relative;
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 18px;
-            backdrop-filter: blur(18px);
-            box-shadow: 0 8px 32px rgba(80, 50, 20, 0.18), inset 0 1px 0 rgba(255, 255, 220, 0.6);
-            padding: 2rem;
+            inset: -20%;
+            z-index: -1;
             overflow: hidden;
-        }
-
-        /* Aged corner warmth */
-        .washi::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 18px;
             pointer-events: none;
-            background:
-                radial-gradient(ellipse at 0% 0%, rgba(180, 130, 60, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 100% 100%, rgba(180, 130, 60, 0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 100% 0%, rgba(200, 160, 80, 0.05) 0%, transparent 40%);
         }
 
-        /* Nameplate bar */
-        .washi-bar {
-            position: relative;
-            background: linear-gradient(90deg, var(--moss2), var(--moss), var(--moss2));
-            margin: -2rem -2rem 1.5rem -2rem;
-            padding: 10px 2rem;
-            border-bottom: 1px solid rgba(30, 80, 20, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.6;
+            animation: float 25s infinite ease-in-out alternate;
+            transition: background 1.5s ease-in-out;
         }
 
-        .washi-bar-title {
-            font-family: 'Shippori Mincho B1', serif;
-            font-size: 0.78rem;
-            font-weight: 500;
-            letter-spacing: 0.15em;
-            color: #c8e8b8;
-            text-transform: uppercase;
+        .blob-1 {
+            top: 10%;
+            left: 10%;
+            width: 45vw;
+            height: 45vw;
+            background: var(--blob-1);
+            animation-duration: 22s;
         }
 
-        /* ── Section heading ── */
-        .scene-heading {
-            text-align: center;
-            margin-bottom: 2.5rem;
+        .blob-2 {
+            bottom: 10%;
+            right: 10%;
+            width: 55vw;
+            height: 55vw;
+            background: var(--blob-2);
+            animation-delay: -5s;
         }
 
-        .scene-heading h1 {
-            font-family: 'Shippori Mincho B1', serif;
-            font-size: clamp(2rem, 5vw, 3.2rem);
-            font-weight: 400;
-            color: #f5edd0;
-            text-shadow: 0 2px 20px rgba(30, 15, 5, 0.5), 0 0 60px rgba(200, 140, 40, 0.2);
-            letter-spacing: 0.04em;
+        .blob-3 {
+            top: 40%;
+            left: 50%;
+            width: 40vw;
+            height: 40vw;
+            background: var(--blob-3);
+            animation-delay: -10s;
         }
 
-        .scene-heading p {
-            margin-top: 0.6rem;
-            font-style: italic;
-            color: rgba(245, 237, 208, 0.75);
-            font-size: 0.92rem;
-        }
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
 
-        .scene-heading #defaultsLine {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7rem;
-            color: rgba(245, 237, 208, 0.5);
-            letter-spacing: 0.08em;
-        }
+            50% {
+                transform: translate(3%, 7%) scale(1.03);
+            }
 
-        /* ── Layout ── */
-        .gen-grid {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 1.5rem;
-            align-items: start;
-        }
-
-        @media(max-width:820px) {
-            .gen-grid {
-                grid-template-columns: 1fr;
+            100% {
+                transform: translate(-3%, -4%) scale(0.97);
             }
         }
 
-        /* ── Inputs ── */
-        .field-label {
-            display: block;
-            margin-bottom: 5px;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 0.12em;
-            color: var(--ink3);
-            text-transform: uppercase;
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 20px 40px var(--panel-shadow);
+            border-radius: 2rem;
+            transition: all 0.5s ease;
+        }
+
+        .nav-pill {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-muted);
+        }
+
+        .nav-pill.active {
+            color: var(--accent-text);
+            background: var(--accent);
+            box-shadow: 0 8px 20px var(--accent-glow);
         }
 
         input,
         select,
         textarea {
-            font-family: 'EB Garamond', serif;
-            font-size: 0.95rem;
-            color: var(--ink);
-            width: 100%;
-            background: rgba(255, 248, 230, 0.7);
-            border: 1px solid rgba(140, 100, 50, 0.25);
-            border-radius: 10px;
-            padding: 9px 12px;
-            outline: none;
-            resize: none;
-            transition: all 0.25s;
-            box-shadow: inset 0 1px 3px rgba(100, 70, 30, 0.08);
-        }
-
-        input::placeholder,
-        textarea::placeholder {
-            color: var(--ink3);
-            font-style: italic;
+            background: var(--panel-bg) !important;
+            border: 2px solid var(--panel-border) !important;
+            color: var(--text-main) !important;
+            border-radius: 1rem !important;
+            transition: all 0.3s ease !important;
         }
 
         input:focus,
         select:focus,
         textarea:focus {
-            background: rgba(255, 252, 240, 0.9);
-            border-color: var(--moss);
-            box-shadow: 0 0 0 3px rgba(60, 120, 40, 0.12), inset 0 1px 3px rgba(100, 70, 30, 0.08);
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 4px var(--accent-glow) !important;
         }
 
-        select {
-            appearance: none;
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6040' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-        }
-
-        .row2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .ctrl-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        /* ── Bulk toggle ── */
-        .bulk-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .tog-wrap {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            cursor: pointer;
-        }
-
-        .tog-wrap span {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--ink3);
-        }
-
-        .tog-track {
-            width: 30px;
-            height: 16px;
-            border-radius: 100px;
-            background: rgba(140, 100, 50, 0.2);
+        .btn-magic {
+            background: var(--accent);
+            color: var(--accent-text);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 1.25rem;
             position: relative;
-            transition: background 0.25s;
-        }
-
-        #bulkToggle {
-            display: none;
-        }
-
-        #bulkToggle:checked~.tog-track {
-            background: var(--moss);
-        }
-
-        .tog-thumb {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #fff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-            transition: left 0.2s;
-        }
-
-        #bulkToggle:checked~.tog-track .tog-thumb {
-            left: 16px;
-        }
-
-        /* ── Generate Button (Ceremonial Seal) ── */
-        .seal-wrap {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 1.5rem;
-            gap: 10px;
-        }
-
-        .seal-btn {
-            position: relative;
-            width: 100%;
-            height: 60px;
-            border: none;
-            border-radius: 100px;
-            cursor: pointer;
-            background: linear-gradient(135deg, var(--moss3), var(--moss), var(--moss3));
-            color: #d8f0c8;
-            font-family: 'Shippori Mincho B1', serif;
-            font-size: 1.1rem;
-            font-weight: 500;
-            letter-spacing: 0.12em;
-            box-shadow: 0 4px 20px rgba(40, 100, 25, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
-            transition: all 0.3s;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+            border: 2px solid transparent;
         }
 
-        .seal-btn::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 100px;
-            background: linear-gradient(90deg, transparent 30%, rgba(255, 255, 255, 0.08) 50%, transparent 70%);
-            transform: translateX(-100%);
-            transition: transform 0s;
+        .btn-magic:hover:not(:disabled) {
+            background: var(--accent-hover);
+            box-shadow: 0 15px 35px var(--accent-glow);
+            transform: translateY(-4px) scale(1.02);
         }
 
-        .seal-btn:hover::before {
-            transform: translateX(100%);
-            transition: transform 0.6s ease;
+        .art-frame {
+            border-radius: 1.5rem;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 4px solid var(--panel-bg);
+            background: var(--panel-bg);
         }
 
-        .seal-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(40, 100, 25, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-        }
-
-        .seal-btn:active:not(:disabled) {
-            transform: translateY(0) scale(0.98);
-        }
-
-        .seal-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .seal-ring {
-            position: absolute;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: 1.5px solid rgba(200, 240, 160, 0.3);
-            animation: ringrot 8s linear infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            left: 18px;
-        }
-
-        @keyframes ringrot {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .seal-btn:disabled .seal-ring {
-            animation-duration: 0.6s;
-        }
-
-        .seal-ring::before {
-            content: '';
-            position: absolute;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 1px solid rgba(200, 240, 160, 0.2);
+        .art-frame:hover {
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px var(--accent-glow);
+            transform: translateY(-8px) scale(1.02);
         }
 
         .loader {
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(200, 240, 160, 0.3);
-            border-top-color: #d8f0c8;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
             border-radius: 50%;
-            animation: spin 0.75s linear infinite;
+            animation: spin 1s infinite linear;
         }
 
         @keyframes spin {
@@ -836,1006 +203,152 @@
             }
         }
 
-        /* ── Canvas ── */
-        .canvas-panel {
-            display: flex;
-            flex-direction: column;
-            min-height: 640px;
-        }
-
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-            gap: 10px;
-            flex: 1;
-            min-height: 300px;
-            overflow-y: auto;
-            padding: 2px;
-        }
-
-        .gallery-empty {
-            grid-column: 1/-1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 280px;
-            gap: 14px;
-            opacity: .4;
-            color: var(--ink3);
-            text-align: center;
-        }
-
-        .gallery-empty .icon {
-            font-size: 2.8rem;
-            animation: breathe 4s ease-in-out infinite;
-        }
-
-        @keyframes breathe {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
-        }
-
-        .gallery-empty p {
-            font-style: italic;
-            font-size: 0.9rem;
-        }
-
-        .img-card {
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid rgba(140, 100, 50, 0.2);
-            cursor: pointer;
-            background: var(--parchment2);
-            transition: transform 0.35s cubic-bezier(.25, 1, .5, 1), box-shadow 0.35s;
-        }
-
-        .img-card:hover {
-            transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 14px 30px rgba(60, 30, 10, 0.28);
-        }
-
-        .img-card img {
-            width: 100%;
-            display: block;
-            object-fit: cover;
-        }
-
-        .img-card-ov {
-            position: absolute;
-            inset: 0;
-            border-radius: 12px;
-            background: rgba(30, 15, 5, 0.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.25s;
-        }
-
-        .img-card:hover .img-card-ov {
-            opacity: 1;
-        }
-
-        .img-card-ov span {
-            background: rgba(244, 237, 216, 0.92);
-            color: var(--ink);
-            padding: 5px 14px;
-            border-radius: 100px;
-            font-size: 0.78rem;
-            font-family: 'Shippori Mincho B1', serif;
-        }
-
-        /* ── Canvas footer ── */
-        .canvas-foot {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-top: 1.2rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(140, 100, 50, 0.18);
-        }
-
-        .icon-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            border: none;
-            background: rgba(140, 100, 50, 0.1);
-            border: 1px solid var(--panel-border);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--ink3);
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-
-        .icon-btn:hover {
-            background: rgba(140, 100, 50, 0.2);
-            color: var(--ink2);
-        }
-
-        /* ── Log ── */
-        .log-box {
-            margin-top: 1rem;
-            background: rgba(26, 16, 8, 0.06);
-            border: 1px solid rgba(140, 100, 50, 0.15);
-            border-radius: 10px;
-            padding: 10px 12px;
-            height: 90px;
-            overflow-y: auto;
-        }
-
-        .log-h {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.6rem;
-            color: var(--ink3);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 5px;
-        }
-
-        .log-dot {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: var(--moss3);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: .5
-            }
-
-            50% {
-                opacity: 1
-            }
-        }
-
-        .log-line {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--ink3);
-            line-height: 1.7;
-        }
-
-        .log-line .t-ok {
-            color: var(--moss2);
-        }
-
-        .log-line .t-err {
-            color: var(--rose);
-        }
-
-        .log-line .t-sys {
-            color: var(--amber3);
-        }
-
-        /* ── Modal ── */
-        .modal-bg {
-            position: fixed;
-            inset: 0;
-            z-index: 200;
-            background: rgba(20, 10, 5, 0.6);
-            backdrop-filter: blur(14px);
+        .no-scrollbar::-webkit-scrollbar {
             display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            opacity: 0;
-            transition: opacity 0.35s;
-        }
-
-        .modal-bg.open {
-            display: flex;
-        }
-
-        .modal-bg.vis {
-            opacity: 1;
-        }
-
-        .modal-box {
-            display: flex;
-            max-width: 880px;
-            width: 100%;
-            max-height: 90vh;
-            overflow: hidden;
-            border-radius: 22px;
-            border: 1px solid rgba(140, 100, 50, 0.3);
-            background: var(--parchment);
-            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.5);
-            transform: scale(0.93);
-            transition: transform 0.4s cubic-bezier(.25, 1, .5, 1);
-        }
-
-        .modal-bg.vis .modal-box {
-            transform: scale(1);
-        }
-
-        .modal-img {
-            flex: 1;
-            background: var(--parchment2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            min-height: 300px;
-        }
-
-        .modal-img img {
-            max-width: 100%;
-            max-height: 75vh;
-            object-fit: contain;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-side {
-            width: 320px;
-            padding: 1.8rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            border-left: 1px solid rgba(140, 100, 50, 0.2);
-        }
-
-        .modal-title {
-            font-family: 'Shippori Mincho B1', serif;
-            font-size: 1.3rem;
-            font-weight: 400;
-        }
-
-        .info-b {
-            background: rgba(140, 100, 50, 0.08);
-            border-radius: 10px;
-            padding: 10px 12px;
-        }
-
-        .info-b .field-label {
-            margin-bottom: 3px;
-        }
-
-        .info-b p {
-            font-size: 0.88rem;
-            color: var(--ink2);
-        }
-
-        .modal-acts {
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .m-close {
-            position: sticky;
-            top: 0;
-            align-self: flex-end;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: rgba(140, 100, 50, 0.12);
-            border: 1px solid var(--panel-border);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--ink2);
-            transition: all 0.2s;
-        }
-
-        .m-close:hover {
-            background: rgba(140, 100, 50, 0.22);
-        }
-
-        /* ── Buttons ── */
-        .btn {
-            font-family: 'Shippori Mincho B1', serif;
-            font-size: 0.9rem;
-            border: none;
-            border-radius: 100px;
-            cursor: pointer;
-            padding: 11px 20px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s;
-            text-decoration: none;
-            text-align: center;
-        }
-
-        .btn-p {
-            background: linear-gradient(135deg, var(--moss3), var(--moss));
-            color: #d8f0c8;
-            box-shadow: 0 3px 14px rgba(40, 100, 25, 0.4);
-        }
-
-        .btn-p:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 5px 18px rgba(40, 100, 25, 0.45);
-        }
-
-        .btn-g {
-            background: rgba(140, 100, 50, 0.1);
-            border: 1px solid var(--panel-border);
-            color: var(--ink2);
-        }
-
-        .btn-g:hover {
-            background: rgba(140, 100, 50, 0.18);
-        }
-
-        /* ── Queue / History ── */
-        .task-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 1rem;
-        }
-
-        .task-card {
-            background: rgba(255, 248, 230, 0.6);
-            border: 1px solid var(--panel-border);
-            border-radius: 14px;
-            padding: 1.2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .task-model {
-            font-family: 'Shippori Mincho B1', serif;
-            font-size: 1.05rem;
-        }
-
-        .task-prompt {
-            font-size: 0.82rem;
-            color: var(--ink3);
-            font-style: italic;
-            line-height: 1.55;
-        }
-
-        .status-pill {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.6rem;
-            padding: 3px 10px;
-            border-radius: 100px;
-            width: fit-content;
-            background: rgba(60, 120, 40, 0.12);
-            color: var(--moss2);
-            border: 1px solid rgba(60, 120, 40, 0.25);
-        }
-
-        .status-pill.fail {
-            background: rgba(180, 80, 80, 0.12);
-            color: var(--rose);
-            border-color: rgba(180, 80, 80, 0.25);
-        }
-
-        .task-foot {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 4px;
-        }
-
-        .task-foot span {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--ink3);
-        }
-
-        .retry-btn {
-            font-family: 'EB Garamond', serif;
-            font-size: 0.82rem;
-            color: var(--moss2);
-            background: none;
-            border: none;
-            cursor: pointer;
-            text-decoration: underline;
-            text-underline-offset: 3px;
-        }
-
-        .retry-btn:hover {
-            color: var(--moss3);
-        }
-
-        .hist-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-            gap: 12px;
-        }
-
-        .hist-card {
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            border: 1px solid rgba(140, 100, 50, 0.2);
-            background: var(--parchment);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .hist-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 28px rgba(60, 30, 10, 0.22);
-        }
-
-        .hist-thumb {
-            aspect-ratio: 4/3;
-            overflow: hidden;
-            background: var(--parchment2);
-            position: relative;
-        }
-
-        .hist-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .hist-badge {
-            position: absolute;
-            top: 7px;
-            left: 7px;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.58rem;
-            padding: 2px 7px;
-            border-radius: 100px;
-            background: rgba(26, 16, 8, 0.6);
-            color: rgba(244, 237, 216, 0.9);
-        }
-
-        .hist-body {
-            padding: 9px 11px;
-        }
-
-        .hist-model {
-            font-family: 'Shippori Mincho B1', serif;
-            font-size: 0.88rem;
-        }
-
-        .hist-date {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.62rem;
-            color: var(--ink3);
-        }
-
-        .hist-prompt {
-            font-size: 0.76rem;
-            color: var(--ink3);
-            font-style: italic;
-            line-height: 1.5;
-            margin-top: 3px;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-
-        .filters {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            padding: 5px 13px;
-            border-radius: 100px;
-            border: 1px solid var(--panel-border);
-            background: transparent;
-            cursor: pointer;
-            color: var(--ink3);
-            transition: all 0.2s;
-        }
-
-        .filter-btn.active,
-        .filter-btn:hover {
-            background: var(--moss);
-            color: #d8f0c8;
-            border-color: var(--moss);
-        }
-
-        .count-pill {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            padding: 4px 11px;
-            border-radius: 100px;
-            background: rgba(140, 100, 50, 0.1);
-            border: 1px solid var(--panel-border);
-            color: var(--ink3);
-        }
-
-        .empty-s {
-            padding: 4rem 2rem;
-            text-align: center;
-            opacity: .4;
-            color: var(--ink3);
-        }
-
-        .empty-s .icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .empty-s p {
-            font-style: italic;
-            font-size: 0.9rem;
-        }
-
-        /* ── Status bar ── */
-        .status-bar {
-            position: fixed;
-            bottom: 1.2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            pointer-events: none;
-            background: rgba(244, 237, 216, 0.85);
-            border: 1px solid rgba(140, 100, 50, 0.3);
-            border-radius: 100px;
-            padding: 7px 18px;
-            backdrop-filter: blur(18px);
-            box-shadow: 0 4px 16px rgba(80, 50, 20, 0.15);
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--ink3);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            letter-spacing: 0.08em;
-            white-space: nowrap;
-        }
-
-        .s-dot {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: var(--moss3);
-            animation: pulse 2s ease-in-out infinite;
-            flex-shrink: 0;
-        }
-
-        .s-dot.alert {
-            background: var(--rose);
-        }
-
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(140, 100, 50, 0.25);
-            border-radius: 10px;
         }
     </style>
 </head>
 
-<body>
+<body class="pb-32" data-mode="standard">
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
 
-    <!-- Custom cursor -->
-    <div id="orb"></div>
-    <div id="orb-trail"></div>
-
-    <!-- SVG defs for world (hidden) -->
-    <svg style="position:absolute;width:0;height:0;overflow:hidden">
-        <defs>
-            <filter id="glow">
-                <feGaussianBlur stdDeviation="3" result="blur" />
-                <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                </feMerge>
-            </filter>
-        </defs>
-    </svg>
-
-    <!-- Sky -->
-    <div class="sky" id="sky"></div>
-
-    <!-- World Scene SVG -->
-    <svg class="world-svg" viewBox="0 0 1440 820" preserveAspectRatio="xMidYMax slice"
-        xmlns="http://www.w3.org/2000/svg">
-        <!-- Stars -->
-        <g id="stars">
-            <circle class="star star-twinkle" cx="80" cy="40" r="1.2" style="animation-duration:2.1s" />
-            <circle class="star star-twinkle" cx="200" cy="70" r="0.9"
-                style="animation-duration:3.3s;animation-delay:-.8s" />
-            <circle class="star star-twinkle" cx="340" cy="30" r="1.4"
-                style="animation-duration:2.7s;animation-delay:-1.2s" />
-            <circle class="star star-twinkle" cx="500" cy="55" r="1.0"
-                style="animation-duration:4.1s;animation-delay:-.4s" />
-            <circle class="star star-twinkle" cx="650" cy="25" r="1.3"
-                style="animation-duration:2.4s;animation-delay:-2s" />
-            <circle class="star star-twinkle" cx="780" cy="60" r="0.8"
-                style="animation-duration:3.8s;animation-delay:-1.5s" />
-            <circle class="star star-twinkle" cx="920" cy="35" r="1.1"
-                style="animation-duration:2.9s;animation-delay:-.6s" />
-            <circle class="star star-twinkle" cx="1060" cy="50" r="1.5"
-                style="animation-duration:3.5s;animation-delay:-2.2s" />
-            <circle class="star star-twinkle" cx="1200" cy="28" r="0.9"
-                style="animation-duration:2.2s;animation-delay:-1s" />
-            <circle class="star star-twinkle" cx="1340" cy="65" r="1.2"
-                style="animation-duration:4.5s;animation-delay:-.3s" />
-            <circle class="star star-twinkle" cx="140" cy="110" r="0.8"
-                style="animation-duration:3.1s;animation-delay:-2.8s" />
-            <circle class="star star-twinkle" cx="420" cy="95" r="1.0"
-                style="animation-duration:2.6s;animation-delay:-1.7s" />
-            <circle class="star star-twinkle" cx="700" cy="80" r="1.3"
-                style="animation-duration:3.9s;animation-delay:-.9s" />
-            <circle class="star star-twinkle" cx="1000" cy="90" r="0.8"
-                style="animation-duration:2.3s;animation-delay:-1.4s" />
-            <circle class="star star-twinkle" cx="1280" cy="100" r="1.1"
-                style="animation-duration:4.2s;animation-delay:-.7s" />
-        </g>
-
-        <!-- Moon -->
-        <g id="moon-group" style="opacity:var(--moon-op);transition:opacity 8s;">
-            <circle class="moon-orb" cx="1150" cy="90" r="42" fill="#f0eed8" />
-            <circle class="moon-crater" cx="1135" cy="78" r="8" />
-            <circle class="moon-crater" cx="1162" cy="100" r="5" />
-            <circle class="moon-crater" cx="1148" cy="88" r="3" />
-            <!-- Moon glow -->
-            <circle cx="1150" cy="90" r="60" fill="rgba(240,238,200,0.08)" />
-            <circle cx="1150" cy="90" r="80" fill="rgba(240,238,200,0.04)" />
-        </g>
-
-        <!-- Sun -->
-        <g id="sun-group">
-            <circle cx="260" cy="110" r="55" fill="rgba(255,244,160,0.12)" />
-            <circle cx="260" cy="110" r="38" fill="rgba(255,228,100,0.15)" />
-            <circle class="sun-orb" cx="260" cy="110" r="26" fill="#fff7b0" opacity="0.88" />
-        </g>
-
-        <!-- Far mountains -->
-        <g opacity="0.6">
-            <polygon points="0,560 280,160 560,560" fill="#8a9aae" />
-            <polygon points="160,580 520,90  880,580" fill="#7d8e9e" />
-            <polygon points="480,570 820,130 1160,570" fill="#7a8b9b" />
-            <polygon points="780,565 1100,150 1440,565" fill="#859aab" />
-            <polygon points="1050,580 1440,180 1440,580" fill="#8898a8" />
-        </g>
-
-        <!-- Mountain snow caps -->
-        <g fill="#e8ecf0" opacity="0.7">
-            <polygon points="280,160 260,210 300,210" />
-            <polygon points="520,90  500,148 540,148" />
-            <polygon points="820,130 800,182 840,182" />
-            <polygon points="1100,150 1080,200 1120,200" />
-        </g>
-
-        <!-- Mist between mountains and forest -->
-        <rect x="0" y="480" width="1440" height="100" fill="url(#mistGrad)" opacity="0.5" />
-        <defs>
-            <linearGradient id="mistGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#d8e8d0" stop-opacity="0" />
-                <stop offset="40%" stop-color="#d8e8d0" stop-opacity="0.6" />
-                <stop offset="100%" stop-color="#c8d8c0" stop-opacity="0" />
-            </linearGradient>
-            <linearGradient id="mistGrad2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#c8d8c0" stop-opacity="0" />
-                <stop offset="50%" stop-color="#b8ccb0" stop-opacity="0.45" />
-                <stop offset="100%" stop-color="#a8bc9e" stop-opacity="0" />
-            </linearGradient>
-        </defs>
-
-        <!-- Forest back layer (organic silhouette) -->
-        <path class="sway-c" d="
-    M0,600
-    Q20,540 40,520 Q55,500 70,490 Q82,480 95,490 Q108,500 115,520
-    Q130,495 148,475 Q162,458 178,465 Q192,472 198,488
-    Q212,465 232,448 Q248,435 264,440 Q278,450 284,468
-    Q296,450 318,428 Q336,412 355,418 Q372,428 378,448
-    Q392,425 414,405 Q432,390 450,395 Q466,402 472,422
-    Q484,400 508,378 Q526,362 545,368 Q562,376 568,396
-    Q582,372 606,350 Q624,334 643,340 Q660,348 666,368
-    Q680,345 702,325 Q720,310 738,316 Q754,324 760,344
-    Q775,320 798,300 Q816,285 835,290 Q852,298 858,318
-    Q872,295 895,275 Q913,260 932,265 Q950,272 956,292
-    Q970,268 992,248 Q1010,232 1030,238 Q1048,246 1054,266
-    Q1068,242 1090,222 Q1108,208 1128,214 Q1146,222 1152,242
-    Q1166,220 1186,202 Q1204,188 1224,194 Q1242,202 1248,222
-    Q1262,200 1282,182 Q1300,168 1320,174 Q1338,182 1344,202
-    Q1358,180 1378,164 Q1396,150 1416,156 Q1434,164 1440,182
-    L1440,600 Z" fill="#1e4a0e" opacity="0.85" />
-
-        <!-- Forest mid layer -->
-        <path class="sway-b" d="
-    M0,680
-    Q25,618 50,600 Q68,585 86,592 Q102,600 108,618
-    Q122,596 145,576 Q164,560 183,566 Q200,574 206,592
-    Q220,570 245,548 Q264,532 284,538 Q302,546 308,565
-    Q322,543 348,521 Q368,505 388,511 Q408,519 414,540
-    Q428,517 454,496 Q474,480 494,487 Q514,495 520,515
-    Q534,492 560,472 Q580,456 600,463 Q620,471 626,491
-    Q640,468 665,448 Q685,432 706,439 Q726,447 732,467
-    Q747,444 773,424 Q793,408 814,415 Q834,423 840,443
-    Q856,420 882,400 Q902,384 923,391 Q943,399 949,420
-    Q965,397 990,378 Q1010,362 1031,369 Q1051,377 1057,398
-    Q1072,375 1096,356 Q1116,340 1138,347 Q1158,355 1164,376
-    Q1180,353 1204,334 Q1224,318 1246,325 Q1266,333 1272,354
-    Q1288,331 1312,312 Q1332,296 1354,303 Q1374,311 1380,332
-    Q1396,308 1420,290 Q1436,276 1440,282
-    L1440,680 Z" fill="#2a6218" opacity="0.9" />
-
-        <!-- Bamboo grove (right side) -->
-        <g id="bamboo" opacity="0.85">
-            <g class="sway-a">
-                <rect x="1300" y="520" width="7" height="220" rx="3.5" fill="#4a7a28" />
-                <rect x="1300" y="540" width="7" height="4" fill="#3a6020" />
-                <rect x="1300" y="570" width="7" height="4" fill="#3a6020" />
-                <rect x="1300" y="600" width="7" height="4" fill="#3a6020" />
-                <rect x="1300" y="630" width="7" height="4" fill="#3a6020" />
-            </g>
-            <g class="sway-b">
-                <rect x="1314" y="505" width="6" height="235" rx="3" fill="#527e30" />
-                <rect x="1314" y="525" width="6" height="3" fill="#3e6424" />
-                <rect x="1314" y="555" width="6" height="3" fill="#3e6424" />
-                <rect x="1314" y="588" width="6" height="3" fill="#3e6424" />
-                <rect x="1314" y="620" width="6" height="3" fill="#3e6424" />
-            </g>
-            <g class="sway-c">
-                <rect x="1326" y="530" width="7" height="210" rx="3.5" fill="#456e22" />
-                <rect x="1326" y="548" width="7" height="4" fill="#365818" />
-                <rect x="1326" y="580" width="7" height="4" fill="#365818" />
-                <rect x="1326" y="610" width="7" height="4" fill="#365818" />
-            </g>
-            <g class="sway-d">
-                <rect x="1340" y="518" width="6" height="222" rx="3" fill="#4a7228" />
-                <rect x="1340" y="538" width="6" height="3" fill="#3a5c1e" />
-                <rect x="1340" y="568" width="6" height="3" fill="#3a5c1e" />
-                <rect x="1340" y="600" width="6" height="3" fill="#3a5c1e" />
-            </g>
-            <g class="sway-e">
-                <rect x="1352" y="510" width="7" height="230" rx="3.5" fill="#537e2e" />
-                <rect x="1352" y="530" width="7" height="4" fill="#3e6220" />
-                <rect x="1352" y="560" width="7" height="4" fill="#3e6220" />
-                <rect x="1352" y="594" width="7" height="4" fill="#3e6220" />
-            </g>
-            <g class="sway-a">
-                <rect x="1366" y="525" width="6" height="215" rx="3" fill="#486c24" />
-                <rect x="1366" y="545" width="6" height="3" fill="#385618" />
-                <rect x="1366" y="575" width="6" height="3" fill="#385618" />
-                <rect x="1366" y="607" width="6" height="3" fill="#385618" />
-            </g>
-            <!-- Bamboo leaves -->
-            <ellipse cx="1303" cy="525" rx="18" ry="5" fill="#5a8a30" opacity="0.8" class="sway-b"
-                transform="rotate(-25,1303,525)" />
-            <ellipse cx="1318" cy="510" rx="16" ry="5" fill="#4e7c28" opacity="0.8" class="sway-c"
-                transform="rotate(20,1318,510)" />
-            <ellipse cx="1330" cy="535" rx="14" ry="4" fill="#5a8a30" opacity="0.75" class="sway-a"
-                transform="rotate(-15,1330,535)" />
-            <ellipse cx="1343" cy="522" rx="17" ry="5" fill="#4a7420" opacity="0.8" class="sway-d"
-                transform="rotate(30,1343,522)" />
-            <ellipse cx="1355" cy="515" rx="15" ry="4" fill="#56862c" opacity="0.75" class="sway-b"
-                transform="rotate(-20,1355,515)" />
-            <ellipse cx="1370" cy="528" rx="14" ry="5" fill="#4a7420" opacity="0.8" class="sway-e"
-                transform="rotate(15,1370,528)" />
-        </g>
-
-        <!-- Pond / water (left foreground) -->
-        <g id="pond">
-            <ellipse cx="140" cy="748" rx="105" ry="22" fill="#7aaac8" opacity="0.55" />
-            <ellipse cx="140" cy="748" rx="85" ry="16" fill="#90bcd8" opacity="0.4" />
-            <!-- Lily pads -->
-            <ellipse cx="108" cy="748" rx="10" ry="6" fill="#4a8a28" opacity="0.7" />
-            <ellipse cx="168" cy="745" rx="12" ry="7" fill="#3e7820" opacity="0.65" />
-            <ellipse cx="140" cy="752" rx="8" ry="5" fill="#56962e" opacity="0.7" />
-            <!-- Small lotus -->
-            <circle cx="108" cy="745" r="3" fill="#f8c0c8" opacity="0.8" />
-            <circle cx="168" cy="742" r="2.5" fill="#f8d8e0" opacity="0.75" />
-            <!-- Water shimmer -->
-            <line x1="80" y1="748" x2="110" y2="748" stroke="rgba(255,255,255,0.35)" stroke-width="0.8" />
-            <line x1="150" y1="750" x2="190" y2="749" stroke="rgba(255,255,255,0.3)" stroke-width="0.6" />
-            <line x1="60" y1="752" x2="90" y2="751" stroke="rgba(255,255,255,0.25)" stroke-width="0.5" />
-        </g>
-
-        <!-- Ground -->
-        <path d="M0,730 Q240,710 480,725 Q720,740 960,722 Q1200,705 1440,720 L1440,820 L0,820 Z" fill="#3a6e20" />
-        <path d="M0,748 Q200,732 400,744 Q600,756 800,740 Q1000,725 1200,738 Q1350,748 1440,742 L1440,820 L0,820 Z"
-            fill="#4a8828" />
-
-        <!-- Grass tufts -->
-        <g>
-            <g class="grass-blade" style="animation-duration:2.1s">
-                <path d="M220,740 Q218,720 225,705" stroke="#5ea030" stroke-width="2" fill="none" />
-                <path d="M225,740 Q228,718 222,700" stroke="#4e9028" stroke-width="1.5" fill="none" />
-            </g>
-            <g class="grass-blade" style="animation-duration:3.3s;animation-delay:-.5s">
-                <path d="M380,732 Q378,712 385,695" stroke="#58a02c" stroke-width="2" fill="none" />
-                <path d="M385,732 Q388,710 382,692" stroke="#4a8a22" stroke-width="1.5" fill="none" />
-            </g>
-            <g class="grass-blade" style="animation-duration:2.8s;animation-delay:-1s">
-                <path d="M550,728 Q548,708 555,692" stroke="#60a832" stroke-width="2" fill="none" />
-            </g>
-            <g class="grass-blade" style="animation-duration:4.1s;animation-delay:-1.8s">
-                <path d="M700,735 Q698,715 705,698" stroke="#54982a" stroke-width="2" fill="none" />
-                <path d="M705,735 Q708,714 702,697" stroke="#4a8820" stroke-width="1.5" fill="none" />
-            </g>
-            <g class="grass-blade" style="animation-duration:3.6s;animation-delay:-.7s">
-                <path d="M880,729 Q878,709 885,693" stroke="#5ca82e" stroke-width="2" fill="none" />
-            </g>
-            <g class="grass-blade" style="animation-duration:2.5s;animation-delay:-2.2s">
-                <path d="M1050,733 Q1048,713 1055,697" stroke="#58a02c" stroke-width="2" fill="none" />
-                <path d="M1055,733 Q1058,712 1052,695" stroke="#4e9024" stroke-width="1.5" fill="none" />
-            </g>
-            <g class="grass-blade" style="animation-duration:3.9s;animation-delay:-1.4s">
-                <path d="M1230,727 Q1228,707 1235,691" stroke="#62ac34" stroke-width="2" fill="none" />
-            </g>
-        </g>
-
-        <!-- Small wildflowers -->
-        <g opacity="0.8">
-            <circle cx="350" cy="738" r="3" fill="#f8e860" />
-            <circle cx="620" cy="732" r="2.5" fill="#f8c0d0" />
-            <circle cx="850" cy="736" r="3" fill="#f8f0a0" />
-            <circle cx="1180" cy="730" r="2.5" fill="#c8e8f0" />
-            <circle cx="260" cy="742" r="2" fill="#f0d8f8" />
-        </g>
-    </svg>
-
-    <!-- Particles -->
-    <div class="particles" id="particles"></div>
-
-    <!-- Modal -->
-    <div class="modal-bg" id="modal">
-        <div class="modal-box">
-            <div class="modal-img"><img id="modalImage" src="" alt="Preview"></div>
-            <div class="modal-side">
-                <button class="m-close" id="closeModalBtn">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M1 1l10 10M11 1L1 11" />
-                    </svg>
-                </button>
-                <div class="modal-title">Image Preview</div>
-                <div class="info-b"><span class="field-label">Prompt</span>
-                    <p id="modalPrompt"></p>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                    <div class="info-b"><span class="field-label">Model</span>
-                        <p id="modalModel"></p>
+    <!-- Detail Modal -->
+    <div id="modal"
+        class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-2xl opacity-0 transition-opacity duration-500">
+        <div class="glass-panel max-w-6xl w-full max-h-[90vh] flex flex-col lg:flex-row overflow-hidden shadow-2xl scale-95 transition-transform duration-500"
+            id="modalContainer">
+            <div class="flex-1 bg-black/10 flex items-center justify-center p-6"><img id="modalImage" src=""
+                    class="max-w-full max-h-full object-contain rounded-xl shadow-2xl" /></div>
+            <div
+                class="w-full lg:w-[400px] p-8 flex flex-col gap-6 bg-white/5 overflow-y-auto border-t lg:border-l border-white/10">
+                <h3 class="text-3xl font-bold cinematic-text">Manifestation</h3>
+                <div class="space-y-4">
+                    <div class="p-4 bg-[var(--panel-bg)] rounded-xl border border-[var(--panel-border)] shadow-sm">
+                        <p class="text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-1 font-bold">The
+                            Vision</p>
+                        <p id="modalPrompt" class="text-sm font-medium italic"></p>
                     </div>
-                    <div class="info-b"><span class="field-label">Seed</span>
-                        <p id="modalSeed"></p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div
+                            class="p-4 bg-[var(--panel-bg)] rounded-xl border border-[var(--panel-border)] transition-all">
+                            <p class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Brush</p>
+                            <p id="modalModel" class="font-bold text-sm"></p>
+                        </div>
+                        <div class="p-4 bg-[var(--panel-bg)] rounded-xl border border-[var(--panel-border)]">
+                            <p class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Seed</p>
+                            <p id="modalSeed" class="font-bold text-sm"></p>
+                        </div>
                     </div>
                 </div>
-                <div class="info-b"><span class="field-label">Resolution</span>
-                    <p id="modalResolution"></p>
-                </div>
-                <div class="modal-acts">
-                    <a id="downloadImageBtn" href="#" download class="btn btn-p">⬇ Save Image</a>
-                    <button onclick="closeModal()" class="btn btn-g">Close</button>
+                <div class="mt-auto space-y-4">
+                    <a id="downloadImageBtn" href="#" download
+                        class="block w-full py-4 btn-magic font-bold text-center uppercase tracking-widest shadow-xl">Save
+                        Image</a>
+                    <button onclick="closeModal()"
+                        class="w-full py-3 text-[var(--text-muted)] font-bold uppercase tracking-widest text-xs">Close</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- App -->
-    <div class="app">
-        <!-- Header -->
-        <header class="header" style="position:relative;">
-            <a class="logo" href="#">
-                <div class="logo-orb"></div>
-                PromptStore
-            </a>
-            <nav class="nav-strip">
-                <button data-view="generate" class="nav-btn active">Studio</button>
-                <button data-view="tasks" class="nav-btn">Queue</button>
-                <button data-view="history" class="nav-btn">Library</button>
+    <header class="sticky top-6 z-50 px-4 md:px-8">
+        <div
+            class="max-w-7xl mx-auto glass-panel p-3 flex items-center justify-between gap-6 overflow-x-auto no-scrollbar">
+            <div class="flex items-center gap-3 pl-2">
+                <div
+                    class="w-10 h-10 rounded-lg bg-[var(--accent)] text-white flex items-center justify-center shadow-lg transform -rotate-3 hover:rotate-0 transition-transform cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2.5">
+                        <path
+                            d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-black cinematic-text tracking-widest">AETHER</h1>
+            </div>
+            <nav class="flex items-center gap-2 bg-black/5 p-1 rounded-2xl border border-black/5">
+                <button data-view="generate"
+                    class="nav-pill active px-6 py-2 rounded-xl font-bold uppercase tracking-widest text-[10px] whitespace-nowrap">Forge</button>
+                <button data-view="tasks"
+                    class="nav-pill px-6 py-2 rounded-xl font-bold uppercase tracking-widest text-[10px] whitespace-nowrap">Queue</button>
+                <button data-view="history"
+                    class="nav-pill px-6 py-2 rounded-xl font-bold uppercase tracking-widest text-[10px] whitespace-nowrap">Vault</button>
             </nav>
-            <div class="mode-strip">
-                <button id="modeStandard" data-mode="standard" class="mode-btn active">Safe</button>
-                <button id="modeNsfw" data-mode="nsfw" class="mode-btn">Explicit</button>
+            <div class="flex items-center gap-2 shrink-0 pr-2">
+                <button id="modeStandard" data-mode="standard"
+                    class="nav-pill px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest">Day</button>
+                <button id="modeNsfw" data-mode="nsfw"
+                    class="nav-pill px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest">Star</button>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <!-- Studio -->
-        <section id="view-generate" class="view visible">
-            <div class="scene-heading">
-                <h1>Imagine anything.</h1>
-                <p>
-                    <span id="modeStatus">Standard mode</span>
-                    &ensp;·&ensp;
-                    <span id="defaultsLine">Awakening the spirits…</span>
-                </p>
+    <main class="max-w-7xl mx-auto px-4 md:px-8 py-10">
+        <section id="view-generate" class="view space-y-10">
+            <div
+                class="glass-panel p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10 border-t-8 border-t-[var(--accent)]">
+                <div class="space-y-6 max-w-xl">
+                    <h2 class="text-5xl md:text-7xl font-bold cinematic-text leading-[1.1]">Weave the <br /><span
+                            class="text-[var(--accent)] italic">Imagination</span></h2>
+                    <p class="text-[var(--text-muted)] text-lg font-medium leading-relaxed">Speak your vision. Our
+                        engines will paint reality.</p>
+                </div>
+                <div
+                    class="w-32 h-32 md:w-48 md:h-48 rounded-full border-[8px] border-[var(--accent)] border-dotted animate-[spin_20s_linear_infinite] opacity-30">
+                </div>
             </div>
 
-            <div class="gen-grid">
-                <!-- Controls Panel -->
-                <div class="washi ctrl-stack">
-                    <div class="washi-bar">
-                        <span class="washi-bar-title">⚙ Configuration</span>
-                    </div>
-
-                    <div>
-                        <span class="field-label">Model</span>
-                        <select id="model"></select>
-                    </div>
-                    <div class="row2">
-                        <div><span class="field-label">Quality</span><select id="quality"></select></div>
-                        <div><span class="field-label">Aspect</span><select id="aspect"></select></div>
-                    </div>
-                    <div>
-                        <div class="bulk-row" style="margin-bottom:5px;">
-                            <span class="field-label" style="margin:0;">Prompt</span>
-                            <label class="tog-wrap">
-                                <input type="checkbox" id="bulkToggle">
-                                <span>Bulk</span>
-                                <div class="tog-track">
-                                    <div class="tog-thumb"></div>
-                                </div>
-                            </label>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="glass-panel p-8 space-y-6">
+                        <div class="space-y-2"><label
+                                class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] ml-2">Engine</label><select
+                                id="model" class="w-full h-14 px-4 font-bold"></select></div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2"><label
+                                    class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] ml-2">Fidelity</label><select
+                                    id="quality" class="w-full h-14 px-4 font-bold"></select></div>
+                            <div class="space-y-2"><label
+                                    class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] ml-2">Canvas</label><select
+                                    id="aspect" class="w-full h-14 px-4 font-bold"></select></div>
                         </div>
-                        <textarea id="prompt" rows="5" placeholder="Describe what you wish to conjure…"></textarea>
-                        <div id="bulkHelper"
-                            style="display:none;font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--ink3);margin-top:5px;">
-                            Wrap each prompt: (A moonlit forest) (A spirit bathhouse)
-                        </div>
-                    </div>
-                    <div>
-                        <span class="field-label">Negative Prompt</span>
-                        <textarea id="negativePrompt" rows="3"
-                            placeholder="What to leave out of the vision…"></textarea>
-                    </div>
-                    <div>
-                        <span class="field-label">Seed (optional)</span>
-                        <input id="seed" type="number" placeholder="Leave empty for a random spirit">
-                    </div>
-
-                    <!-- Generate Seal -->
-                    <div class="seal-wrap">
-                        <button id="generateBtn" class="seal-btn" style="position:relative;">
-                            <div class="seal-ring"></div>
-                            <span id="btnText">✦ Generate</span>
-                            <div id="btnLoader" class="loader" style="display:none;"></div>
+                        <div class="space-y-2"><label
+                                class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] ml-2">The
+                                Vision</label><textarea id="prompt" placeholder="Describe the unseen..."
+                                class="w-full min-h-[160px] p-6 resize-none"></textarea></div>
+                        <div class="space-y-2"><label
+                                class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] ml-2">Wards
+                                (Negatives)</label><textarea id="negativePrompt"
+                                class="w-full min-h-[100px] p-4 text-xs resize-none"></textarea></div>
+                        <button id="generateBtn"
+                            class="w-full h-20 btn-magic flex items-center justify-center gap-4 text-xl font-bold cinematic-text uppercase tracking-widest shadow-xl">
+                            <span id="btnText">Manifest Vision</span>
+                            <div id="btnLoader" class="hidden">
+                                <div class="loader"></div>
+                            </div>
                         </button>
-                        <button id="clearBtn" class="btn btn-g" style="width:100%;font-size:0.82rem;">Clear
-                            Canvas</button>
                     </div>
                 </div>
-
-                <!-- Canvas Panel -->
-                <div class="washi canvas-panel">
-                    <div class="washi-bar">
-                        <span class="washi-bar-title">🎴 Canvas</span>
-                        <span id="imageCount" class="count-pill"
-                            style="background:rgba(0,0,0,0.15);border-color:rgba(255,255,255,0.15);color:#c8e8b8;">0
-                            images</span>
-                    </div>
-
-                    <div id="gallery" class="gallery">
-                        <div class="gallery-empty">
-                            <div class="icon">🌸</div>
-                            <p>Your visions will bloom here</p>
+                <div class="lg:col-span-7 flex flex-col gap-6">
+                    <div class="glass-panel p-8 min-h-[500px] flex-1">
+                        <div class="flex items-center justify-between border-b border-[var(--panel-border)] pb-4 mb-8">
+                            <h3 class="text-xl cinematic-text font-bold text-[var(--text-muted)]">The Easel</h3>
+                            <div id="imageCount"
+                                class="text-[10px] font-bold text-[var(--accent)] bg-[var(--accent-glow)] px-4 py-1.5 rounded-full border border-[var(--accent)]">
+                                0 Visions</div>
                         </div>
-                    </div>
-
-                    <div class="log-box" style="margin-top:1rem;">
-                        <div class="log-h">
-                            <div class="log-dot"></div> Spirit Log
-                        </div>
-                        <div id="terminal">
-                            <div class="log-line"><span class="t-sys">[SYSTEM]</span> The spirit studio stirs to life.
+                        <div id="gallery" class="grid grid-cols-1 sm:grid-cols-2 gap-6 content-start">
+                            <div class="col-span-full py-32 opacity-20 text-center space-y-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                                    <circle cx="9" cy="9" r="2" />
+                                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                                </svg>
+                                <p class="text-2xl font-bold cinematic-text">Canvas Ready</p>
                             </div>
                         </div>
                     </div>
@@ -1843,461 +356,228 @@
             </div>
         </section>
 
-        <!-- Queue -->
-        <section id="view-tasks" class="view">
-            <div class="washi">
-                <div class="washi-bar">
-                    <span class="washi-bar-title">⏳ Active Queue</span>
-                    <span id="taskCount" class="count-pill"
-                        style="background:rgba(0,0,0,0.15);border-color:rgba(255,255,255,0.15);color:#c8e8b8;">0
-                        jobs</span>
-                </div>
-                <div id="taskList" class="task-grid" style="margin-top:1rem;"></div>
+        <section id="view-tasks" class="view hidden">
+            <div class="glass-panel p-10">
+                <h2 class="text-4xl font-bold cinematic-text mb-10">Active Journeys</h2>
+                <div id="taskList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
             </div>
         </section>
-
-        <!-- Library -->
-        <section id="view-history" class="view">
-            <div class="washi">
-                <div class="washi-bar">
-                    <span class="washi-bar-title">📚 Library</span>
-                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                        <div class="filters">
-                            <button data-history-filter="all" class="filter-btn active">All</button>
-                            <button data-history-filter="sfw" class="filter-btn">Safe</button>
-                            <button data-history-filter="nsfw" class="filter-btn">Explicit</button>
-                        </div>
-                        <span id="historyCount" class="count-pill"
-                            style="background:rgba(0,0,0,0.15);border-color:rgba(255,255,255,0.15);color:#c8e8b8;">0
-                            items</span>
-                    </div>
-                </div>
-                <div id="historyList" class="hist-grid" style="margin-top:1rem;"></div>
+        <section id="view-history" class="view hidden">
+            <div class="glass-panel p-10">
+                <h2 class="text-4xl font-bold cinematic-text mb-10">Vault</h2>
+                <div id="historyList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
             </div>
         </section>
-    </div>
+    </main>
 
-    <!-- Status bar -->
-    <div class="status-bar">
-        <div class="s-dot" id="statusDot"></div>
-        <span id="footerStatus">The spirits are ready</span>
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div id="footerStatus"
+            class="glass-panel py-3 px-8 rounded-full flex items-center gap-4 text-xs font-bold text-[var(--text-main)] shadow-2xl transition-all translate-y-20 opacity-0">
+            <span class="w-3 h-3 rounded-full bg-[var(--accent)] animate-pulse shadow-[0_0_8px_var(--accent)]"></span>
+            <span id="footerMsgText">Nexus Clear</span>
+        </div>
     </div>
 
     <script>
-        // ── Custom Cursor ──
-        const orb = document.getElementById('orb');
-        const trail = document.getElementById('orb-trail');
-        document.addEventListener('mousemove', e => {
-            orb.style.left = e.clientX + 'px';
-            orb.style.top = e.clientY + 'px';
-            setTimeout(() => {
-                trail.style.left = e.clientX + 'px';
-                trail.style.top = e.clientY + 'px';
-            }, 80);
-        });
-        document.addEventListener('mousedown', () => orb.classList.add('click'));
-        document.addEventListener('mouseup', () => orb.classList.remove('click'));
-
-        // ── Day/Night Cycle ──
-        const CYCLE_MS = 300000; // 5 minutes
-        const PHASES = [
-            // [frac, skyTop, skyBot, starOp, moonOp, ffOp, sunX, sunY, label]
-            [0.00, '#f7c59f', '#f5dfc0', 0.1, 0.0, 0.0, 260, 110, 'Dawn'],
-            [0.15, '#87c8e8', '#c8e8b8', 0.0, 0.0, 0.0, 700, 80, 'Morning'],
-            [0.35, '#74b8dc', '#b8d8a8', 0.0, 0.0, 0.0, 1100, 90, 'Afternoon'],
-            [0.55, '#d46040', '#e88060', 0.1, 0.1, 0.2, 1350, 160, 'Dusk'],
-            [0.70, '#3050a0', '#4070b0', 0.6, 0.7, 0.7, 1440, 250, 'Twilight'],
-            [0.85, '#0a0a28', '#101830', 0.9, 0.9, 0.95, 1440, 350, 'Night'],
-            [1.00, '#f7c59f', '#f5dfc0', 0.1, 0.0, 0.0, 260, 110, 'Dawn'],
-        ];
-
-        function lerp(a, b, t) { return a + (b - a) * t; }
-        function lerpColor(ca, cb, t) {
-            const pa = parseInt(ca.slice(1), 16);
-            const pb = parseInt(cb.slice(1), 16);
-            const r = Math.round(lerp((pa >> 16) & 0xff, (pb >> 16) & 0xff, t));
-            const g = Math.round(lerp((pa >> 8) & 0xff, (pb >> 8) & 0xff, t));
-            const b2 = Math.round(lerp(pa & 0xff, pb & 0xff, t));
-            return `rgb(${r},${g},${b2})`;
-        }
-
-        function updateDayNight() {
-            const t = (Date.now() % CYCLE_MS) / CYCLE_MS;
-            let phase0 = PHASES[PHASES.length - 2], phase1 = PHASES[PHASES.length - 1];
-            for (let i = 0; i < PHASES.length - 1; i++) {
-                if (t >= PHASES[i][0] && t < PHASES[i + 1][0]) { phase0 = PHASES[i]; phase1 = PHASES[i + 1]; break; }
-            }
-            const span = phase1[0] - phase0[0];
-            const ft = span > 0 ? (t - phase0[0]) / span : 0;
-
-            const skyTop = lerpColor(phase0[1], phase1[1], ft);
-            const skyBot = lerpColor(phase0[2], phase1[2], ft);
-            document.getElementById('sky').style.background = `linear-gradient(180deg, ${skyTop} 0%, ${skyBot} 100%)`;
-
-            const starOp = lerp(phase0[3], phase1[3], ft);
-            const moonOp = lerp(phase0[4], phase1[4], ft);
-            const ffOp = lerp(phase0[5], phase1[5], ft);
-
-            const root = document.documentElement;
-            root.style.setProperty('--star-op', starOp.toFixed(3));
-            root.style.setProperty('--moon-op', moonOp.toFixed(3));
-            root.style.setProperty('--ff-op', ffOp.toFixed(3));
-
-            // Move sun
-            const sx = lerp(phase0[6], phase1[6], ft);
-            const sy = lerp(phase0[7], phase1[7], ft);
-            const sg = document.getElementById('sun-group');
-            if (sg) sg.setAttribute('transform', `translate(${sx - 260},${sy - 110})`);
-
-            document.getElementById('footerStatus').textContent = `${phase0[8]} · The world breathes`;
-            setTimeout(updateDayNight, 2000);
-        }
-        updateDayNight();
-
-        // ── Particle System ──
-        const PX = document.getElementById('particles');
-
-        function spawnLantern() {
-            const el = document.createElement('div');
-            el.className = 'lantern';
-            const w = 18 + Math.random() * 14;
-            const x = 10 + Math.random() * 80;
-            const lx = (Math.random() - 0.5) * 80;
-            const dur = 14 + Math.random() * 14;
-            el.style.cssText = `left:${x}vw;bottom:10vh;width:${w}px;height:${w * 1.5}px;--lx:${lx}px;animation-duration:${dur}s;animation-delay:${-Math.random() * dur}s;`;
-            PX.appendChild(el);
-            setTimeout(() => el.remove(), (dur + 2) * 1000);
-        }
-        for (let i = 0; i < 8; i++) spawnLantern();
-        setInterval(spawnLantern, 5000);
-
-        // Fireflies
-        for (let i = 0; i < 16; i++) {
-            const el = document.createElement('div');
-            el.className = 'firefly';
-            const dur = 6 + Math.random() * 10;
-            el.style.cssText = `left:${Math.random() * 90}vw;top:${30 + Math.random() * 55}vh;--fx:${(Math.random() - .5) * 120}px;--fy:${(Math.random() - .5) * 80}px;animation-duration:${dur}s;animation-delay:${-Math.random() * dur}s;`;
-            PX.appendChild(el);
-        }
-
-        // Petals
-        for (let i = 0; i < 12; i++) {
-            const el = document.createElement('div');
-            el.className = 'petal';
-            const dur = 12 + Math.random() * 18;
-            const w = 6 + Math.random() * 8;
-            el.style.cssText = `left:${Math.random() * 100}vw;top:-20px;width:${w}px;height:${w * 1.5}px;--pr:${(Math.random() - .5) * 900}deg;animation-duration:${dur}s;animation-delay:${-Math.random() * dur}s;`;
-            PX.appendChild(el);
-        }
-
-        // Soot sprites
-        function spawnSoot() {
-            const el = document.createElement('div');
-            el.className = 'soot';
-            const size = 10 + Math.random() * 8;
-            const ypos = 72 + Math.random() * 18;
-            const dur = 6 + Math.random() * 8;
-            const p25 = (25 * window.innerWidth / 100) + 'px';
-            const p50 = (50 * window.innerWidth / 100) + 'px';
-            const p75 = (75 * window.innerWidth / 100) + 'px';
-            el.style.cssText = `width:${size}px;height:${size}px;left:0;top:${ypos}vh;animation-duration:${dur}s;--sx25:${p25};--sx50:${p50};--sx75:${p75};`;
-            // Add eyes
-            el.innerHTML = `<div style="position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;top:25%;left:20%;box-shadow:0 0 2px rgba(255,255,255,0.8);"></div><div style="position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;top:25%;right:20%;box-shadow:0 0 2px rgba(255,255,255,0.8);"></div>`;
-            PX.appendChild(el);
-            setTimeout(() => el.remove(), (dur + 1) * 1000);
-        }
-        setTimeout(spawnSoot, 3000);
-        setInterval(spawnSoot, 20000);
-
-        // ── Data ──
+        // Configuration & State
         window.__SERVER_URL__ = "__SERVER_URL__";
         window.__SERVER_URL_NSFW__ = "__SERVER_URL_NSFW__";
 
         const SFW_MODELS = [
-            { name: "Ani", profile: "ani", default_n_steps: 32, default_guidance_scale: 8.5, default_negative_prompt: "text, watermark, blurry, monochrome, sketch, line art, drawing, pencil art, pen art, watermark, signature, low quality, bad quality" },
-            { name: "Aura", profile: "aura", default_n_steps: 36, default_guidance_scale: 5, default_negative_prompt: "score_6, score_5, score_4, low res, huge breasts, mutated hands, bad hands, monochrome, grayscale, old, ugly" },
-            { name: "Evo", profile: "evo", default_n_steps: 40, default_guidance_scale: 7, default_negative_prompt: "(worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth, watermark)" },
-            { name: "Flux1 D", profile: "flux1d", default_n_steps: 35, default_guidance_scale: 3.5, default_negative_prompt: "" },
-            { name: "Fur", profile: "fur", default_n_steps: 25, default_guidance_scale: 4.5, default_negative_prompt: "human, multiple tails, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured" },
-            { name: "FurXL Classic", profile: "furxl", default_n_steps: 40, default_guidance_scale: 7, default_negative_prompt: "(worst quality, low quality), watermarks, signature, (interlocked fingers)" },
-            { name: "Gen", profile: "gen", default_n_steps: 30, default_guidance_scale: 3.5, default_negative_prompt: "low quality, bad quality, mutated, low detail, blurry, out of focus, jpeg artifacts, bad anatomy, mutated hands" },
-            { name: "Glitch", profile: "glitch", default_n_steps: 30, default_guidance_scale: 5, default_negative_prompt: "loli, young, petite, patreon, bad anatomy, bad hands" },
-            { name: "Gothic", profile: "gothic", default_n_steps: 30, default_guidance_scale: 4, default_negative_prompt: "3d, worst_quality, bad_quality, poorly_detailed, 2d, sketch, ugly face" },
-            { name: "Hyper CGI", profile: "hypercgi", default_n_steps: 25, default_guidance_scale: 3, default_negative_prompt: "SmoothNegative_Hands-neg, modern, recent, old, oldest, cartoon, graphic" },
-            { name: "HyperX", profile: "hyperx", default_n_steps: 28, default_guidance_scale: 7, default_negative_prompt: "blur, bad quality, bad composition, copyright, watermark" },
-            { name: "Muse", profile: "muse", default_n_steps: 28, default_guidance_scale: 3, default_negative_prompt: "" },
-            { name: "Nai", profile: "nai", default_n_steps: 50, default_guidance_scale: 7, default_negative_prompt: "child, loli, young, source_furry, source_pony, monochrome, 3d, censored" },
-            { name: "Neo", profile: "neo", default_n_steps: 35, default_guidance_scale: 4, default_negative_prompt: "" },
-            { name: "Noob", profile: "noob", default_n_steps: 32, default_guidance_scale: 5, default_negative_prompt: "worst quality, old, early, low quality, lowres, signature, username, logo" },
-            { name: "Pixel", profile: "pixel", default_n_steps: 26, default_guidance_scale: 3.5, default_negative_prompt: "bad quality, worst quality, worst detail, copyright name, bad anatomy, watermark" },
-            { name: "Pony", profile: "pony", default_n_steps: 30, default_guidance_scale: 6, default_negative_prompt: "score_6, score_5, score_4, nsfw, pumpkin, 3d, blurry, cropped" },
-            { name: "Rend", profile: "rend", default_n_steps: 40, default_guidance_scale: 6, default_negative_prompt: "worst_quality, bad_quality, poorly_detailed, long neck" },
-            { name: "Retro", profile: "retro", default_n_steps: 30, default_guidance_scale: 5, default_negative_prompt: "worst quality, low quality, lowres, bad anatomy, bad hands, text, error" },
-            { name: "Supra", profile: "supra", default_n_steps: 50, default_guidance_scale: 2, default_negative_prompt: "(deformed iris, deformed pupils), worst quality, low quality, blurry, text" },
-            { name: "Synth", profile: "synth", default_n_steps: 40, default_guidance_scale: 5, default_negative_prompt: "bad quality, worst quality, worst detail, censor, bad anatomy, patreon" },
-            { name: "Toon", profile: "toon", default_n_steps: 53, default_guidance_scale: 7, default_negative_prompt: "score_6, score_5, score_4, ugly face, mutated hands, ahegao, bad eyes" },
-            { name: "Volt", profile: "volt", default_n_steps: 30, default_guidance_scale: 7, default_negative_prompt: "bad quality, poor quality, disfigured, jpg, toy, bad anatomy, missing limbs" },
-            { name: "Wassie", profile: "wassie", default_n_steps: 40, default_guidance_scale: 7, default_negative_prompt: "wrong, imperfect hands, painting, sketch, concept art, cross-eyed" }
+            { "name": "Ani", "profile": "ani", "default_n_steps": 32, "default_guidance_scale": 8.5, "default_strength": 0.76, "default_negative_prompt": "text, watermark, blurry, monochrome, sketch, line art, drawing, pencil art, pen art, watermark, signature, low quality, bad quality" },
+            { "name": "Aura", "profile": "aura", "default_n_steps": 36, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "score_6, score_5, score_4, low res, huge breasts, mutated hands, bad hands, monochrome, grayscale, old, ugly, jewelry, accessory, bad eyes, bad face, muscular, chibi, buzzcut, watermark, logo" },
+            { "name": "Evo", "profile": "evo", "default_n_steps": 40, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "(worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth, watermark)" },
+            { "name": "Flux1 D", "profile": "flux1d", "default_n_steps": 35, "default_guidance_scale": 3.5, "default_strength": 0.76, "default_negative_prompt": "" },
+            { "name": "Fur", "profile": "fur", "default_n_steps": 25, "default_guidance_scale": 4.5, "default_strength": 0.76, "default_negative_prompt": "human, multiple tails, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, very displeasing, (worst" },
+            { "name": "FurXL Classic", "profile": "furxl", "default_n_steps": 40, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "(worst quality, low quality), watermarks, signature, (interlocked fingers)" },
+            { "name": "Gen", "profile": "gen", "default_n_steps": 30, "default_guidance_scale": 3.5, "default_strength": 0.76, "default_negative_prompt": "low quality, bad quality, mutated, low detail, blurry, out of focus, jpeg artifacts, bad anatomy, mutated hands, deformed hands, too many fingers, extra legs, extra arms, deformed feet, bad feet" },
+            { "name": "Glitch", "profile": "glitch", "default_n_steps": 30, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "loli, young, petite, patreon, bad anatomy, bad hands, error, missing fingers, extra digit, fewer digits, cropped,long legs,signature, patreon username, patreon logo" },
+            { "name": "Gothic", "profile": "gothic", "default_n_steps": 30, "default_guidance_scale": 4, "default_strength": 0.76, "default_negative_prompt": "3d, Negative prompt: worst_quality, bad_quality, poorly_detailed, 2d, sketch, ugly face, low res, interlocked fingers, anatomically incorrect hands, bad anatomy, {worst quality, low quality, normal quality}, (watermark, signature, letter, username, logo, " },
+            { "name": "Hyper CGI", "profile": "hypercgi", "default_n_steps": 25, "default_guidance_scale": 3, "default_strength": 0.76, "default_negative_prompt": "SmoothNegative_Hands-neg, Smooth Negative, modern, recent, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra fingers, e" },
+            { "name": "HyperX", "profile": "hyperx", "default_n_steps": 28, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "blur, bad quality, bad composition, copyright, watermark, lineart, pixelated, pixelated, painting, sketch" },
+            { "name": "Muse", "profile": "muse", "default_n_steps": 28, "default_guidance_scale": 3, "default_strength": 0.76, "default_negative_prompt": "" },
+            { "name": "Nai", "profile": "nai", "default_n_steps": 50, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "child, loli, young, source_furry, source_pony, monochrome, 3d, censored, (worst quality, low quality:1.4), (jpeg artifacts:1.4), negative_hand, negative_hand-neg, watermark, signature, text" },
+            { "name": "Neo", "profile": "neo", "default_n_steps": 35, "default_guidance_scale": 4, "default_strength": 0.76, "default_negative_prompt": "" },
+            { "name": "Noob", "profile": "noob", "default_n_steps": 32, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "worst quality, old, early, low quality, lowres, signature, username, logo, bad hands, mutated hands, mammal, anthro, furry, ambiguous form, feral, semi-anthro" },
+            { "name": "Pixel", "profile": "pixel", "default_n_steps": 26, "default_guidance_scale": 3.5, "default_strength": 0.76, "default_negative_prompt": "bad quality, worst quality, worst detail, copyright name, bad anatomy, watermark" },
+            { "name": "Pony", "profile": "pony", "default_n_steps": 30, "default_guidance_scale": 6, "default_strength": 0.76, "default_negative_prompt": "score_6, score_5, score_4, nsfw, pumpkin, 3d, blurry, cropped, signature, username, watermark, jpeg artifacts, normal quality, worst quality, low quality, (missing fingers, extra digits, extra fingers, fewer digits, bad hands:1.3), bad eye,(deformed, dist" },
+            { "name": "Rend", "profile": "rend", "default_n_steps": 40, "default_guidance_scale": 6, "default_strength": 0.76, "default_negative_prompt": "worst_quality, bad_quality, poorly_detailed, long neck" },
+            { "name": "Retro", "profile": "retro", "default_n_steps": 30, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "worst quality, low quality, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digits, fewer digits, cropped, jpeg artifacts, signature, watermark, username, blurry, artist name, old, early, lowres, logo, mutated hands, mammal, anthro, fu" },
+            { "name": "Supra", "profile": "supra", "default_n_steps": 50, "default_guidance_scale": 2, "default_strength": 0.76, "default_negative_prompt": "(deformed iris, deformed pupils), worst quality, low quality, blurry, text" },
+            { "name": "Synth", "profile": "synth", "default_n_steps": 40, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "bad quality, worst quality, worst detail, censor, bad anatomy, patreon, name, signature, child, underage, loli" },
+            { "name": "Toon", "profile": "toon", "default_n_steps": 53, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "score_6, score_5, score_4, ugly face, mutated hands, ahegao, bad eyes, monochrome, sketch, ugly style" },
+            { "name": "Volt", "profile": "volt", "default_n_steps": 30, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "bad quality, poor quality, disfigured, jpg, toy, bad anatomy, missing limbs, missing fingers, ugly, scary, watermark" },
+            { "name": "Wassie", "profile": "wassie", "default_n_steps": 40, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "wrong,imperfect hands, painting, sketch, concept art, cross-eyed,sketches, (worst quality:2), (low quality:2), (normal quality:2), lowres, normal quality, skin spots, acnes, skin blemishes, bad anatomy, DeepNegative, facing away, tilted head, lowres, bad " }
         ];
+
         const NSFW_MODELS = [
-            { name: "Gen", profile: "gen", default_n_steps: 30, default_guidance_scale: 3.5, default_negative_prompt: "low quality, bad quality, mutated, low detail, blurry" },
-            { name: "Ani", profile: "ani", default_n_steps: 32, default_guidance_scale: 8.5, default_negative_prompt: "text, watermark, blurry, monochrome" },
-            { name: "Synth", profile: "synth", default_n_steps: 40, default_guidance_scale: 5, default_negative_prompt: "bad quality, worst quality, worst detail, censor, bad anatomy" },
-            { name: "Fur", profile: "fur", default_n_steps: 25, default_guidance_scale: 4.5, default_negative_prompt: "human, multiple tails, old, oldest, cartoon" },
-            { name: "Noob", profile: "noob", default_n_steps: 32, default_guidance_scale: 5, default_negative_prompt: "worst quality, old, early, low quality" },
-            { name: "Aura", profile: "aura", default_n_steps: 36, default_guidance_scale: 5, default_negative_prompt: "score_6, score_5, score_4, low res" },
-            { name: "Pixel", profile: "pixel", default_n_steps: 26, default_guidance_scale: 3.5, default_negative_prompt: "bad quality, worst quality, worst detail" },
-            { name: "Hyper CGI", profile: "hypercgi", default_n_steps: 25, default_guidance_scale: 3, default_negative_prompt: "SmoothNegative_Hands-neg, modern, recent, old, oldest" },
-            { name: "Volt", profile: "volt", default_n_steps: 30, default_guidance_scale: 7, default_negative_prompt: "bad quality, poor quality, disfigured" },
-            { name: "Muse", profile: "muse", default_n_steps: 28, default_guidance_scale: 3, default_negative_prompt: "" },
-            { name: "Rend", profile: "rend", default_n_steps: 40, default_guidance_scale: 6, default_negative_prompt: "worst_quality, bad_quality, poorly_detailed" },
-            { name: "Pony", profile: "pony", default_n_steps: 30, default_guidance_scale: 6, default_negative_prompt: "score_6, score_5, score_4, nsfw, pumpkin, 3d" },
-            { name: "Neo", profile: "neo", default_n_steps: 35, default_guidance_scale: 4, default_negative_prompt: "" },
-            { name: "Nai", profile: "nai", default_n_steps: 50, default_guidance_scale: 7, default_negative_prompt: "child, loli, young, source_furry, source_pony, monochrome" },
-            { name: "Retro", profile: "retro", default_n_steps: 30, default_guidance_scale: 5, default_negative_prompt: "worst quality, low quality, lowres, bad anatomy" },
-            { name: "Supra", profile: "supra", default_n_steps: 50, default_guidance_scale: 2, default_negative_prompt: "(deformed iris, deformed pupils), worst quality" },
-            { name: "Evo", profile: "evo", default_n_steps: 40, default_guidance_scale: 7, default_negative_prompt: "(worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch)" },
-            { name: "Toon", profile: "toon", default_n_steps: 53, default_guidance_scale: 7, default_negative_prompt: "score_6, score_5, score_4, ugly face, mutated hands" },
-            { name: "HyperX", profile: "hyperx", default_n_steps: 28, default_guidance_scale: 7, default_negative_prompt: "blur, bad quality, bad composition, copyright, watermark" },
-            { name: "FurXL Classic", profile: "furxl", default_n_steps: 40, default_guidance_scale: 7, default_negative_prompt: "(worst quality, low quality), watermarks, signature" },
-            { name: "Illustrious", profile: "illustrious", default_n_steps: 53, default_guidance_scale: 7, default_negative_prompt: "bad quality, worst quality, worst detail, sketch, censor" },
-            { name: "Real Amateurs", profile: "real_amateurs", default_n_steps: 25, default_guidance_scale: 3.5, default_negative_prompt: "asymmetrical-eyes, mismatched eyes, deformed eyes" },
-            { name: "RealX", profile: "realx", default_n_steps: 30, default_guidance_scale: 5, default_negative_prompt: "CyberRealistic_Negative_PONY_V2, watermark, logo, label" },
-            { name: "Real Classic", profile: "realclassic", default_n_steps: 28, default_guidance_scale: 7, default_negative_prompt: "watermark, logomark, text, score 1, score 2, score 3" }
+            { "name": "Gen", "profile": "gen", "default_n_steps": 30, "default_guidance_scale": 3.5, "default_strength": 0.76, "default_negative_prompt": "low quality, bad quality, mutated, low detail, blurry, out of focus, jpeg artifacts, bad anatomy, mutated hands, deformed hands, too many fingers, extra legs, extra arms, deformed feet, bad feet" },
+            { "name": "Ani", "profile": "ani", "default_n_steps": 32, "default_guidance_scale": 8.5, "default_strength": 0.76, "default_negative_prompt": "text, watermark, blurry, monochrome, sketch, line art, drawing, pencil art, pen art, watermark, signature, low quality, bad quality" },
+            { "name": "Synth", "profile": "synth", "default_n_steps": 40, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "bad quality, worst quality, worst detail, censor, bad anatomy, patreon, name, signature, child, underage, loli" },
+            { "name": "Fur", "profile": "fur", "default_n_steps": 25, "default_guidance_scale": 4.5, "default_strength": 0.76, "default_negative_prompt": "human, multiple tails, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, very displeasing, (worst" },
+            { "name": "Noob", "profile": "noob", "default_n_steps": 32, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "worst quality, old, early, low quality, lowres, signature, username, logo, bad hands, mutated hands, mammal, anthro, furry, ambiguous form, feral, semi-anthro" },
+            { "name": "Aura", "profile": "aura", "default_n_steps": 36, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "score_6, score_5, score_4, low res, huge breasts, mutated hands, bad hands, monochrome, grayscale, old, ugly, jewelry, accessory, bad eyes, bad face, muscular, chibi, buzzcut, watermark, logo" },
+            { "name": "Pixel", "profile": "pixel", "default_n_steps": 26, "default_guidance_scale": 3.5, "default_strength": 0.76, "default_negative_prompt": "bad quality, worst quality, worst detail, copyright name, bad anatomy, watermark" },
+            { "name": "Hyper CGI", "profile": "hypercgi", "default_n_steps": 25, "default_guidance_scale": 3, "default_strength": 0.76, "default_negative_prompt": "SmoothNegative_Hands-neg, Smooth Negative, modern, recent, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra fingers, e" },
+            { "name": "Volt", "profile": "volt", "default_n_steps": 30, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "bad quality, poor quality, disfigured, jpg, toy, bad anatomy, missing limbs, missing fingers, ugly, scary, watermark" },
+            { "name": "Muse", "profile": "muse", "default_n_steps": 28, "default_guidance_scale": 3, "default_strength": 0.76, "default_negative_prompt": "" },
+            { "name": "Rend", "profile": "rend", "default_n_steps": 40, "default_guidance_scale": 6, "default_strength": 0.76, "default_negative_prompt": "worst_quality, bad_quality, poorly_detailed, long neck" },
+            { "name": "Pony", "profile": "pony", "default_n_steps": 30, "default_guidance_scale": 6, "default_strength": 0.76, "default_negative_prompt": "score_6, score_5, score_4, nsfw, pumpkin, 3d, blurry, cropped, signature, username, watermark, jpeg artifacts, normal quality, worst quality, low quality, (missing fingers, extra digits, extra fingers, fewer digits, bad hands:1.3), bad eye,(deformed, dist" },
+            { "name": "Neo", "profile": "neo", "default_n_steps": 35, "default_guidance_scale": 4, "default_strength": 0.76, "default_negative_prompt": "" },
+            { "name": "Nai", "profile": "nai", "default_n_steps": 50, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "child, loli, young, source_furry, source_pony, monochrome, 3d, censored, (worst quality, low quality:1.4), (jpeg artifacts:1.4), negative_hand, negative_hand-neg, watermark, signature, text" },
+            { "name": "Retro", "profile": "retro", "default_n_steps": 30, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "worst quality, low quality, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digits, fewer digits, cropped, jpeg artifacts, signature, watermark, username, blurry, artist name, old, early, lowres, logo, mutated hands, mammal, anthro, furry" },
+            { "name": "Supra", "profile": "supra", "default_n_steps": 50, "default_guidance_scale": 2, "default_strength": 0.76, "default_negative_prompt": "(deformed iris, deformed pupils), worst quality, low quality, blurry, text" },
+            { "name": "Evo", "profile": "evo", "default_n_steps": 40, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "(worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth, watermark)" },
+            { "name": "Toon", "profile": "toon", "default_n_steps": 53, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "score_6, score_5, score_4, ugly face, mutated hands, ahegao, bad eyes, monochrome, sketch, ugly style" },
+            { "name": "HyperX", "profile": "hyperx", "default_n_steps": 28, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "blur, bad quality, bad composition, copyright, watermark, lineart, pixelated, pixelated, painting, sketch" },
+            { "name": "FurXL Classic", "profile": "furxl", "default_n_steps": 40, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "(worst quality, low quality), watermarks, signature, (interlocked fingers)" },
+            { "name": "Illustrious", "profile": "illustrious", "default_n_steps": 53, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "bad quality, worst quality, worst detail, sketch, censor, signature, watermark, patreon username, patreon logo" },
+            { "name": "Real Amateurs", "profile": "real_amateurs", "default_n_steps": 25, "default_guidance_scale": 3.5, "default_strength": 0.76, "default_negative_prompt": "asymmetrical-eyes, mismatched eyes, deformed eyes, (turkey-neck:1.2)" },
+            { "name": "RealX", "profile": "realx", "default_n_steps": 30, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "CyberRealistic_Negative_PONY_V2, watermark, logo, label" },
+            { "name": "Real Classic", "profile": "realclassic", "default_n_steps": 28, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "watermark, logomark, text, score 1, score 2, score 3, text, cartoon, anime, worst quality, low quality, bad anatomy, bad hands, bad eyes" }
         ];
 
-        // ── State ──
         const state = {
-            models: [], history: JSON.parse(localStorage.getItem('ps_history') || '[]'),
-            tasks: JSON.parse(localStorage.getItem('ps_tasks') || '[]'),
-            activeMode: localStorage.getItem('ps_mode') || 'standard',
-            activeView: localStorage.getItem('ps_view') || 'generate',
-            historyFilter: localStorage.getItem('ps_hf') || 'all',
-            lastModelByMode: JSON.parse(localStorage.getItem('ps_lm') || '{}'),
+            models: [], serverUrl: "", modelDefaults: null,
+            history: JSON.parse(localStorage.getItem("aether_history") || "[]"),
+            tasks: JSON.parse(localStorage.getItem("aether_tasks") || "[]"),
+            activeMode: localStorage.getItem("aether_mode") || "standard",
+            activeView: localStorage.getItem("aether_view") || "generate",
+            lastModelByMode: JSON.parse(localStorage.getItem("aether_last_models") || "{}"),
         };
 
-        const $ = id => document.getElementById(id);
         const dom = {
-            model: $('model'), quality: $('quality'), aspect: $('aspect'),
-            seed: $('seed'), prompt: $('prompt'), negativePrompt: $('negativePrompt'),
-            generateBtn: $('generateBtn'), btnText: $('btnText'), btnLoader: $('btnLoader'),
-            clearBtn: $('clearBtn'), gallery: $('gallery'), imageCount: $('imageCount'),
-            historyCount: $('historyCount'), historyList: $('historyList'),
-            taskCount: $('taskCount'), taskList: $('taskList'),
-            defaultsLine: $('defaultsLine'), modeStatus: $('modeStatus'),
-            modal: $('modal'), modalImage: $('modalImage'),
-            modalPrompt: $('modalPrompt'), modalModel: $('modalModel'),
-            modalSeed: $('modalSeed'), modalResolution: $('modalResolution'),
-            downloadImageBtn: $('downloadImageBtn'), closeModalBtn: $('closeModalBtn'),
-            footerStatus: $('footerStatus'), statusDot: $('statusDot'),
-            terminal: $('terminal'), bulkToggle: $('bulkToggle'), bulkHelper: $('bulkHelper'),
+            model: document.getElementById("model"), quality: document.getElementById("quality"), aspect: document.getElementById("aspect"),
+            seed: document.getElementById("seed"), prompt: document.getElementById("prompt"), negativePrompt: document.getElementById("negativePrompt"),
+            generateBtn: document.getElementById("generateBtn"), btnText: document.getElementById("btnText"), btnLoader: document.getElementById("btnLoader"),
+            gallery: document.getElementById("gallery"), imageCount: document.getElementById("imageCount"), taskList: document.getElementById("taskList"),
+            historyList: document.getElementById("historyList"), footerStatus: document.getElementById("footerStatus"),
+            footerMsgText: document.getElementById("footerMsgText"), modal: document.getElementById("modal"), modalContainer: document.getElementById("modalContainer"),
+            modalImage: document.getElementById("modalImage"), modalPrompt: document.getElementById("modalPrompt"), modalModel: document.getElementById("modalModel"),
+            modalSeed: document.getElementById("modalSeed"), downloadImageBtn: document.getElementById("downloadImageBtn"),
         };
 
-        function logSystem(msg, type = 'SYSTEM') {
-            const cls = type === 'ERROR' ? 't-err' : type === 'SUCCESS' ? 't-ok' : 't-sys';
-            const d = document.createElement('div'); d.className = 'log-line';
-            d.innerHTML = `<span class="${cls}">[${type}]</span> ${msg}`;
-            dom.terminal.appendChild(d); dom.terminal.scrollTop = dom.terminal.scrollHeight;
-            if (dom.terminal.children.length > 60) dom.terminal.removeChild(dom.terminal.firstChild);
-        }
-
-        function setStatus(msg, alert = false) {
-            dom.footerStatus.textContent = msg;
-            dom.statusDot.className = 's-dot' + (alert ? ' alert' : '');
+        function setFooterMsg(msg) {
+            if (!dom.footerStatus) return;
+            dom.footerMsgText.textContent = msg;
+            dom.footerStatus.classList.remove("translate-y-20", "opacity-0");
+            setTimeout(() => dom.footerStatus.classList.add("translate-y-20", "opacity-0"), 3000);
         }
 
         function getServerUrl() {
-            const o = window.location.origin;
-            const std = (window.__SERVER_URL__ && !window.__SERVER_URL__.startsWith('__')) ? window.__SERVER_URL__ : o;
-            const nsfw = (window.__SERVER_URL_NSFW__ && !window.__SERVER_URL_NSFW__.startsWith('__')) ? window.__SERVER_URL_NSFW__ : std;
-            return (state.activeMode === 'nsfw' ? nsfw : std).trim().replace(/\/$/, '');
+            const origin = window.location.origin;
+            const std = (window.__SERVER_URL__ && !window.__SERVER_URL__.startsWith("__")) ? window.__SERVER_URL__ : origin;
+            return (state.activeMode === "nsfw" ? (window.__SERVER_URL_NSFW__ && !window.__SERVER_URL_NSFW__.startsWith("__") ? window.__SERVER_URL_NSFW__ : std) : std).replace(/\/$/, "");
         }
 
         function persist() {
-            localStorage.setItem('ps_history', JSON.stringify(state.history.slice(0, 100)));
-            localStorage.setItem('ps_tasks', JSON.stringify(state.tasks.slice(0, 50)));
-            localStorage.setItem('ps_mode', state.activeMode);
-            localStorage.setItem('ps_view', state.activeView);
-            localStorage.setItem('ps_hf', state.historyFilter);
-            localStorage.setItem('ps_lm', JSON.stringify(state.lastModelByMode));
+            localStorage.setItem("aether_history", JSON.stringify(state.history));
+            localStorage.setItem("aether_tasks", JSON.stringify(state.tasks));
+            localStorage.setItem("aether_mode", state.activeMode);
+            localStorage.setItem("aether_view", state.activeView);
+            localStorage.setItem("aether_last_models", JSON.stringify(state.lastModelByMode));
         }
 
-        function setView(v) {
-            state.activeView = v;
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('visible'));
-            const el = $(`view-${v}`); if (el) { el.classList.add('visible'); }
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+        function setView(view) {
+            state.activeView = view;
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(`view-${view}`).classList.remove('hidden');
+            document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
             persist();
         }
 
         function applyMode(mode) {
             state.activeMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-            dom.modeStatus.textContent = mode === 'nsfw' ? 'Explicit mode' : 'Standard mode';
+            document.body.dataset.mode = mode;
+            state.serverUrl = getServerUrl();
             const catalog = mode === 'nsfw' ? NSFW_MODELS : SFW_MODELS;
             state.models = catalog;
             dom.model.innerHTML = catalog.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
             const last = state.lastModelByMode[mode];
             if (last && catalog.some(m => m.name === last)) dom.model.value = last;
-            dom.quality.innerHTML = ['Fast', 'High Quality'].map(q => `<option>${q}</option>`).join('');
-            dom.aspect.innerHTML = ['1:1', '16:9', '5:2', '4:5', '4:7'].map(a => `<option>${a}</option>`).join('');
+            dom.quality.innerHTML = ['Fast', 'High Quality'].map(q => `<option value="${q}">${q}</option>`).join('');
+            dom.aspect.innerHTML = ['1:1', '16:9', '5:2', '4:5', '4:7'].map(a => `<option value="${a}">${a}</option>`).join('');
+            document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
             loadDefaults(); renderArchive(); renderQueue(); persist();
+            setFooterMsg(`Realm: ${mode.toUpperCase()}`);
         }
 
         function loadDefaults() {
-            const m = state.models.find(m => m.name === dom.model.value); if (!m) return;
-            dom.negativePrompt.value = m.default_negative_prompt || '';
-            dom.defaultsLine.textContent = `${m.profile.toUpperCase()} · ${m.default_n_steps} steps · CFG ${m.default_guidance_scale}`;
+            const model = state.models.find(m => m.name === dom.model.value);
+            if (model) dom.negativePrompt.value = model.default_negative_prompt || "";
         }
 
         function openModal(item) {
             dom.modalImage.src = item.url;
-            dom.modalPrompt.textContent = item.prompt || '';
-            dom.modalModel.textContent = item.model || 'Unknown';
-            dom.modalSeed.textContent = item.seed || 'Random';
-            dom.modalResolution.textContent = item.resolution || item.aspect || '—';
+            dom.modalPrompt.textContent = item.prompt;
+            dom.modalModel.textContent = item.model;
+            dom.modalSeed.textContent = item.seed || "Divine";
             dom.downloadImageBtn.href = item.url;
-            dom.modal.classList.add('open');
-            requestAnimationFrame(() => dom.modal.classList.add('vis'));
+            dom.modal.classList.remove('hidden'); dom.modal.classList.add('flex');
+            setTimeout(() => { dom.modal.classList.add('opacity-100'); dom.modalContainer.classList.remove('scale-95'); }, 10);
         }
 
         function closeModal() {
-            dom.modal.classList.remove('vis');
-            setTimeout(() => dom.modal.classList.remove('open'), 400);
+            dom.modal.classList.remove('opacity-100'); dom.modalContainer.classList.add('scale-95');
+            setTimeout(() => { dom.modal.classList.add('hidden'); dom.modal.classList.remove('flex'); }, 500);
         }
 
         function renderArchive() {
-            let f = state.history;
-            if (state.historyFilter === 'sfw') f = f.filter(i => !i.nsfw);
-            if (state.historyFilter === 'nsfw') f = f.filter(i => i.nsfw);
-            dom.historyCount.textContent = `${f.length} items`;
-            if (!f.length) { dom.historyList.innerHTML = '<div class="empty-s"><div class="icon">📚</div><p>Your library awaits its first creation.</p></div>'; return; }
-            dom.historyList.innerHTML = f.map(item => `
-    <div class="hist-card" onclick="openArchiveItem('${item.id}')">
-      <div class="hist-thumb">
-        <span class="hist-badge">${item.nsfw ? 'NSFW' : 'SFW'}</span>
-        ${item.image_urls?.length ? `<img src="${item.image_urls[0]}" alt="">` : '<div style="height:100%;display:flex;align-items:center;justify-content:center;opacity:.3;font-size:2rem;">🌿</div>'}
-      </div>
-      <div class="hist-body">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:4px;margin-bottom:3px;">
-          <span class="hist-model">${item.model}</span>
-          <span class="hist-date">${(item.created || '').split(',')[0]}</span>
+            if (state.history.length === 0) { dom.historyList.innerHTML = `<div class="col-span-full py-20 text-center opacity-20 font-bold cinematic-text text-3xl">The Vault is empty</div>`; return; }
+            dom.historyList.innerHTML = state.history.map(item => `
+        <div class="art-frame cursor-pointer" onclick="openArchiveItem('${item.id}')">
+          <div class="aspect-square relative"><img src="${item.image_urls[0]}" class="w-full h-full object-cover"></div>
+          <div class="p-4 bg-white/5"><p class="text-[10px] font-bold uppercase text-[var(--accent)]">${item.model}</p></div>
         </div>
-        <p class="hist-prompt">${item.prompt}</p>
-      </div>
-    </div>`).join('');
+      `).join('');
         }
 
         function openArchiveItem(id) {
             const item = state.history.find(h => h.id === id);
-            if (item) openModal({ ...item, url: item.image_urls?.[0] || '', resolution: item.aspect, seed: item.seed });
+            if (item) openModal({ ...item, url: item.image_urls[0] });
         }
 
         function renderQueue() {
-            dom.taskCount.textContent = `${state.tasks.length} jobs`;
-            if (!state.tasks.length) { dom.taskList.innerHTML = '<div class="empty-s"><div class="icon">🌸</div><p>The queue is peaceful and still.</p></div>'; return; }
+            if (state.tasks.length === 0) { dom.taskList.innerHTML = `<div class="col-span-full py-20 text-center opacity-20 font-bold cinematic-text text-3xl">No active journeys</div>`; return; }
             dom.taskList.innerHTML = state.tasks.map(t => `
-    <div class="task-card">
-      <span class="status-pill ${t.status === 'failed' ? 'fail' : ''}">${t.status}</span>
-      <div class="task-model">${t.model}</div>
-      <p class="task-prompt">"${t.prompt}"</p>
-      <div class="task-foot">
-        <span>${t.created}</span>
-        <button class="retry-btn" onclick="reuseTask('${t.id}')">↻ Retry</button>
-      </div>
-    </div>`).join('');
+        <div class="p-6 glass-panel border-2 border-[var(--accent)] space-y-4">
+          <div class="flex justify-between items-center"><span class="text-xs font-bold uppercase text-[var(--accent)]">${t.status}</span><span class="text-[10px] opacity-40">${t.created}</span></div>
+          <p class="text-sm font-bold italic truncate">"${t.prompt}"</p>
+        </div>
+      `).join('');
         }
 
-        function reuseTask(id) {
-            const t = state.tasks.find(x => x.id === id) || state.history.find(x => x.id === id);
-            if (!t) return;
-            applyMode(t.nsfw ? 'nsfw' : 'standard');
-            dom.model.value = t.model; dom.aspect.value = t.aspect; dom.quality.value = t.quality;
-            dom.prompt.value = t.prompt; dom.negativePrompt.value = t.negative_prompt; dom.seed.value = t.seed || '';
-            setView('generate');
-        }
-
-        // Events
-        document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
-        document.querySelectorAll('.mode-btn').forEach(b => b.addEventListener('click', () => applyMode(b.dataset.mode)));
-        document.querySelectorAll('[data-history-filter]').forEach(b => b.addEventListener('click', () => {
-            state.historyFilter = b.dataset.historyFilter;
-            document.querySelectorAll('[data-history-filter]').forEach(x => x.classList.toggle('active', x === b));
-            renderArchive(); persist();
-        }));
+        document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+        document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => applyMode(b.dataset.mode)));
         dom.model.addEventListener('change', () => { state.lastModelByMode[state.activeMode] = dom.model.value; loadDefaults(); persist(); });
-        dom.clearBtn.addEventListener('click', () => {
-            dom.gallery.innerHTML = '<div class="gallery-empty"><div class="icon">🌿</div><p>Canvas cleared — the garden is ready</p></div>';
-            dom.imageCount.textContent = '0 images'; setStatus('Canvas cleared');
-        });
-        dom.closeModalBtn.addEventListener('click', closeModal);
-        dom.modal.addEventListener('click', e => { if (e.target === dom.modal) closeModal(); });
-        dom.bulkToggle.addEventListener('change', () => {
-            const on = dom.bulkToggle.checked;
-            dom.bulkHelper.style.display = on ? 'block' : 'none';
-            dom.prompt.placeholder = on ? 'Wrap each: (A moonlit lake) (A spirit train) …' : 'Describe what you wish to conjure…';
-            logSystem(on ? 'Bulk casting enabled.' : 'Single casting mode.');
-        });
 
-        // Generate
         dom.generateBtn.addEventListener('click', async () => {
-            const raw = dom.prompt.value.trim();
-            if (!raw) { setStatus('A prompt is required', true); return; }
-            let prompts = [raw];
-            if (dom.bulkToggle.checked) {
-                const m = raw.match(/\(([^)]+)\)/g);
-                if (m) prompts = m.map(x => x.slice(1, -1).trim()).filter(p => p);
-            }
-            if (!prompts.length) { logSystem('No valid prompts found.', 'ERROR'); return; }
-            dom.generateBtn.disabled = true; dom.btnLoader.style.display = 'block';
-            logSystem(`Summoning ${prompts.length} vision(s)…`);
-
-            for (let i = 0; i < prompts.length; i++) {
-                const pt = prompts[i];
-                const tid = `spirit-${Date.now()}`;
-                dom.btnText.textContent = prompts.length > 1 ? `Casting ${i + 1}/${prompts.length}` : 'Casting…';
-                logSystem(`Vision ${i + 1}: "${pt.substring(0, 40)}…"`);
-                const payload = { model: dom.model.value, quality: dom.quality.value, aspect: dom.aspect.value, prompt: pt, negative_prompt: dom.negativePrompt.value.trim(), seed: dom.seed.value ? Number(dom.seed.value) : null, nsfw: state.activeMode === 'nsfw' };
-                const tr = { id: tid, ...payload, status: 'summoning', created: new Date().toLocaleTimeString() };
-                state.tasks.unshift(tr); renderQueue(); setStatus(`Summoning: ${tid}`);
-                try {
-                    const res = await fetch(`${getServerUrl()}/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    if (!res.ok) throw new Error(await res.text());
-                    const result = await res.json();
-                    const hr = { ...tr, status: 'success', image_urls: result.image_urls || [], resolution: result.resolution || payload.aspect, created: new Date().toLocaleString() };
-                    state.tasks = state.tasks.filter(t => t.id !== tid); state.history.unshift(hr);
-                    if (result.image_urls?.length && dom.gallery) {
-                        const oldEmpty = dom.gallery.querySelector('.gallery-empty');
-                        if (oldEmpty) dom.gallery.innerHTML = '';
-                        result.image_urls.forEach((url) => {
-                            const card = document.createElement('div'); card.className = 'img-card'; card.style.position = 'relative';
-                            card.innerHTML = `<img src="${url}" alt="Generated" loading="lazy"><div class="img-card-ov"><span>✦ View</span></div>`;
-                            card.addEventListener('click', () => openModal({ model: payload.model, url, prompt: pt, aspect: payload.aspect, seed: payload.seed || 'Random' }));
-                            dom.gallery.prepend(card);
-                        });
-                        dom.imageCount.textContent = `${dom.gallery.querySelectorAll('.img-card').length} images`;
-                    }
-                    logSystem(`Vision ${i + 1} manifested.`, 'SUCCESS'); renderArchive(); renderQueue();
-                } catch (err) {
-                    console.error(err); logSystem(`Vision ${i + 1} failed: ${err.message}`, 'ERROR');
-                    const t = state.tasks.find(x => x.id === tid); if (t) t.status = 'failed'; renderQueue();
-                }
-                persist();
-            }
-            dom.generateBtn.disabled = false; dom.btnText.textContent = '✦ Generate'; dom.btnLoader.style.display = 'none';
-            logSystem('The spirits have finished their work.'); setStatus('The spirits rest');
+            const prompt = dom.prompt.value.trim();
+            if (!prompt) { setFooterMsg("Inspiration required."); return; }
+            const taskId = `v-${Date.now()}`;
+            const payload = { model: dom.model.value, quality: dom.quality.value, aspect: dom.aspect.value, prompt, negative_prompt: dom.negativePrompt.value, seed: dom.seed.value ? Number(dom.seed.value) : null, nsfw: state.activeMode === 'nsfw' };
+            state.tasks.unshift({ id: taskId, ...payload, status: 'weaving', created: new Date().toLocaleTimeString() });
+            renderQueue();
+            dom.generateBtn.disabled = true; dom.btnText.textContent = "Weaving..."; dom.btnLoader.classList.remove('hidden');
+            try {
+                const resp = await fetch(`${state.serverUrl}/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!resp.ok) throw new Error();
+                const res = await resp.json();
+                state.tasks = state.tasks.filter(t => t.id !== taskId);
+                state.history.unshift({ id: taskId, ...payload, image_urls: res.image_urls, created: new Date().toLocaleString() });
+                dom.gallery.innerHTML = res.image_urls.map(url => `
+          <div class="art-frame cursor-pointer" onclick="openModal({model:'${payload.model}', url:'${url}', prompt:'${prompt.replace(/'/g, "")}', seed:'${payload.seed || "Divine"}'})">
+            <img src="${url}" class="w-full h-full object-cover">
+          </div>
+        `).join('');
+                dom.imageCount.textContent = `${res.image_urls.length} Visions`;
+                renderArchive(); renderQueue(); setFooterMsg("Vision complete.");
+            } catch (e) { setFooterMsg("Weave unravelling."); state.tasks = state.tasks.filter(t => t.id !== taskId); renderQueue(); }
+            finally { dom.generateBtn.disabled = false; dom.btnText.textContent = "Manifest Vision"; dom.btnLoader.classList.add('hidden'); persist(); }
         });
 
-        // Filter init
-        document.querySelectorAll('[data-history-filter]').forEach(b => b.classList.toggle('active', b.dataset.historyFilter === state.historyFilter));
-
-        // Init
         applyMode(state.activeMode); setView(state.activeView);
-
-        window.openArchiveItem = openArchiveItem;
-        window.reuseTask = reuseTask;
-        window.openModal = openModal;
-        window.closeModal = closeModal;
+        window.openArchiveItem = openArchiveItem; window.openModal = openModal; window.closeModal = closeModal;
     </script>
 </body>
 
