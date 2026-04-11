@@ -1,584 +1,1620 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PromptStore | Aether Studio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PromptStore</title>
+  <style>
+    :root {
+      --bg: #050507;
+      --panel: rgba(11, 13, 20, 0.94);
+      --panel-2: rgba(15, 18, 28, 0.98);
+      --text: #f4f0eb;
+      --muted: #a4a8b8;
+      --accent: #e4ff2d;
+      --accent-2: #ff4fd8;
+      --accent-3: #52f0ff;
+      --accent-4: #b48cff;
+      --border: rgba(228, 255, 45, 0.22);
+      --shadow: 7px 7px 0 rgba(0, 0, 0, 0.72);
+      --shadow-soft: 0 28px 80px rgba(0, 0, 0, 0.55);
+      --bg-glow-1: rgba(228, 255, 45, 0.12);
+      --bg-glow-2: rgba(255, 79, 216, 0.10);
+      --bg-glow-3: rgba(82, 240, 255, 0.10);
+      --headline-font: "Arial Black", "Impact", "Haettenschweiler", sans-serif;
+      --ui-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
 
-        :root {
-            /* Base Theme (Daylight / SFW / Ghibli Nature) */
-            --bg-base: #f0f7f4;
-            --blob-1: #a7f3d0;
-            --blob-2: #fde68a;
-            --blob-3: #99f6e4;
-            --panel-bg: rgba(255, 255, 255, 0.45);
-            --panel-border: rgba(255, 255, 255, 0.7);
-            --panel-shadow: rgba(0, 50, 20, 0.05);
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --accent: #10b981;
-            --accent-hover: #059669;
-            --accent-glow: rgba(16, 185, 129, 0.4);
-            --accent-text: #ffffff;
-        }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--ui-font);
+      background:
+        radial-gradient(circle at top left, var(--bg-glow-2), transparent 28%),
+        radial-gradient(circle at top right, var(--bg-glow-1), transparent 24%),
+        radial-gradient(circle at bottom center, var(--bg-glow-3), transparent 30%),
+        linear-gradient(180deg, #040406 0%, #090b11 100%);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
 
-        body[data-mode="nsfw"] {
-            /* Midnight Theme (Starlight / NSFW / Mystical Night) */
-            --bg-base: #0f172a;
-            --blob-1: #8b5cf6;
-            --blob-2: #3b82f6;
-            --blob-3: #ec4899;
-            --panel-bg: rgba(15, 23, 42, 0.55);
-            --panel-border: rgba(255, 255, 255, 0.1);
-            --panel-shadow: rgba(0, 0, 0, 0.4);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent: #8b5cf6;
-            --accent-hover: #7c3aed;
-            --accent-glow: rgba(139, 92, 246, 0.5);
-            --accent-text: #ffffff;
-        }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(180deg, transparent 0 2px, rgba(255,255,255,0.02) 2px 3px),
+        repeating-linear-gradient(90deg, transparent 0 2px, rgba(255,255,255,0.012) 2px 3px),
+        radial-gradient(circle at 20% 15%, rgba(255,255,255,0.05), transparent 18%),
+        radial-gradient(circle at 80% 10%, rgba(255,255,255,0.04), transparent 16%);
+      opacity: 0.12;
+      mix-blend-mode: screen;
+    }
 
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-base);
-            color: var(--text-main);
-            transition: background-color 1.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s ease;
-            overflow-x: hidden;
-            min-height: 100vh;
-            margin: 0;
-        }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(transparent 0 96%, rgba(0,0,0,0.3) 100%),
+        radial-gradient(circle at center, transparent 45%, rgba(0, 0, 0, 0.45) 100%);
+      opacity: 0.72;
+    }
 
-        h1,
-        h2,
-        h3,
-        .cinematic-text {
-            font-family: 'Cinzel', serif;
-        }
+    body[data-mode="standard"] {
+      --accent: #e4ff2d;
+      --accent-2: #52f0ff;
+      --accent-3: #ff4fd8;
+      --bg-glow-1: rgba(228, 255, 45, 0.18);
+      --bg-glow-2: rgba(82, 240, 255, 0.14);
+      --bg-glow-3: rgba(255, 79, 216, 0.08);
+    }
 
-        /* Magical Blobs */
-        .ambient-bg {
-            position: fixed;
-            inset: -20%;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
-        }
+    body[data-mode="nsfw"] {
+      --accent: #ff4fd8;
+      --accent-2: #b48cff;
+      --accent-3: #e4ff2d;
+      --bg-glow-1: rgba(255, 79, 216, 0.18);
+      --bg-glow-2: rgba(180, 140, 255, 0.16);
+      --bg-glow-3: rgba(228, 255, 45, 0.08);
+    }
 
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(90px);
-            opacity: 0.6;
-            animation: float 25s infinite ease-in-out alternate;
-            transition: background 1.5s ease-in-out;
-        }
+    .shell {
+      width: min(1400px, calc(100% - 24px));
+      margin: 12px auto 24px;
+      display: grid;
+      gap: 20px;
+    }
 
-        .blob-1 {
-            top: 10%;
-            left: 10%;
-            width: 45vw;
-            height: 45vw;
-            background: var(--blob-1);
-            animation-duration: 22s;
-        }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: auto auto 1fr;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(6, 8, 14, 0.96);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
+    }
 
-        .blob-2 {
-            bottom: 10%;
-            right: 10%;
-            width: 55vw;
-            height: 55vw;
-            background: var(--blob-2);
-            animation-delay: -5s;
-        }
+    .brand {
+      display: grid;
+      gap: 3px;
+    }
 
-        .blob-3 {
-            top: 40%;
-            left: 50%;
-            width: 40vw;
-            height: 40vw;
-            background: var(--blob-3);
-            animation-delay: -10s;
-        }
+    .brand h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: var(--headline-font);
+      text-shadow: 2px 0 0 var(--accent-2), -2px 0 0 var(--accent-3), 0 0 18px rgba(255,255,255,0.08);
+    }
 
-        @keyframes float {
-            0% {
-                transform: translate(0, 0) scale(1);
-            }
+    .brand .small {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
 
-            50% {
-                transform: translate(3%, 7%) scale(1.03);
-            }
+    .mode-switch,
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
 
-            100% {
-                transform: translate(-3%, -4%) scale(0.97);
-            }
-        }
+    .mode-switch::-webkit-scrollbar,
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
+    }
 
-        .glass-panel {
-            background: var(--panel-bg);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--panel-border);
-            box-shadow: 0 20px 40px var(--panel-shadow);
-            border-radius: 2rem;
-            transition: all 0.5s ease;
-        }
+    .mode-btn,
+    .nav-btn {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
 
-        .nav-pill {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            color: var(--text-muted);
-        }
+    .mode-btn:hover,
+    .nav-btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
 
-        .nav-pill.active {
-            color: var(--accent-text);
-            background: var(--accent);
-            box-shadow: 0 8px 20px var(--accent-glow);
-        }
+    .mode-btn.active,
+    .nav-btn.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-color: var(--accent);
+      color: #06080b;
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.72), 0 0 24px rgba(255, 255, 255, 0.06);
+    }
 
-        input,
-        select,
-        textarea {
-            background: var(--panel-bg) !important;
-            border: 2px solid var(--panel-border) !important;
-            color: var(--text-main) !important;
-            border-radius: 1rem !important;
-            transition: all 0.3s ease !important;
-        }
+    .app {
+      display: grid;
+      gap: 18px;
+    }
 
-        input:focus,
-        select:focus,
-        textarea:focus {
-            border-color: var(--accent) !important;
-            box-shadow: 0 0 0 4px var(--accent-glow) !important;
-        }
+    .view {
+      display: none;
+      gap: 18px;
+    }
 
-        .btn-magic {
-            background: var(--accent);
-            color: var(--accent-text);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border-radius: 1.25rem;
-            position: relative;
-            overflow: hidden;
-            border: 2px solid transparent;
-        }
+    .view.active {
+      display: grid;
+    }
 
-        .btn-magic:hover:not(:disabled) {
-            background: var(--accent-hover);
-            box-shadow: 0 15px 35px var(--accent-glow);
-            transform: translateY(-4px) scale(1.02);
-        }
+    .generate-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.95fr) minmax(320px, 1.05fr);
+      gap: 18px;
+      align-items: start;
+    }
 
-        .art-frame {
-            border-radius: 1.5rem;
-            overflow: hidden;
-            position: relative;
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 4px solid var(--panel-bg);
-            background: var(--panel-bg);
-        }
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
 
-        .art-frame:hover {
-            border-color: var(--accent);
-            box-shadow: 0 20px 40px var(--accent-glow);
-            transform: translateY(-8px) scale(1.02);
-        }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr auto;
+      gap: 20px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
+        radial-gradient(circle at 15% 20%, rgba(228,255,45,0.18), transparent 28%),
+        radial-gradient(circle at 85% 20%, rgba(255,79,216,0.16), transparent 26%);
+      box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.58);
+    }
 
-        .loader {
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s infinite linear;
-        }
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 54px);
+      letter-spacing: 0.04em;
+      font-family: var(--headline-font);
+      text-transform: uppercase;
+      line-height: 0.95;
+    }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+    .glitch {
+      position: relative;
+      display: inline-block;
+      isolation: isolate;
+    }
 
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-    </style>
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      opacity: 0.72;
+      pointer-events: none;
+    }
+
+    .glitch::before {
+      transform: translate(2px, 0);
+      color: var(--accent-2);
+      clip-path: inset(0 0 55% 0);
+      animation: glitchShift 2.8s infinite linear alternate-reverse;
+    }
+
+    .glitch::after {
+      transform: translate(-2px, 0);
+      color: var(--accent-3);
+      clip-path: inset(52% 0 0 0);
+      animation: glitchShift 2.1s infinite linear alternate;
+    }
+
+    .hero p {
+      margin: 12px 0 0;
+      color: var(--muted);
+      max-width: 72ch;
+      line-height: 1.5;
+      font-size: 15px;
+    }
+
+    .eyebrow {
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.34em;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .hero .chips {
+      margin-top: 18px;
+    }
+
+    .status {
+      padding: 12px 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+      align-self: end;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--panel);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card header {
+      padding: 18px 22px;
+      border-bottom: 1px solid rgba(228, 255, 45, 0.18);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, rgba(228,255,45,0.06), transparent);
+    }
+
+    .card header h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0.14em;
+      font-family: var(--headline-font);
+      text-transform: uppercase;
+    }
+
+    .card .body {
+      padding: 22px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .field.compact {
+      margin-bottom: 12px;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    input, select, textarea, button {
+      font: inherit;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      background: rgba(0,0,0,0.42);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      background: rgba(0,0,0,0.52);
+      box-shadow: 0 0 0 3px rgba(228,255,45,0.10);
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .row-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.18);
+    }
+
+    .toggle input {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .toggle.toggle-alert {
+      border-color: rgba(120, 255, 143, 0.45);
+      background: rgba(120, 255, 143, 0.10);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #08110b;
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.72);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+      border: 1px solid rgba(228,255,45,0.18);
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .gallery {
+      column-count: 3;
+      column-gap: 14px;
+    }
+
+    .art-card {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      margin: 0 0 14px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(228,255,45,0.24);
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease;
+      break-inside: avoid;
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.03) inset;
+    }
+
+    .art-card:hover {
+      transform: translateY(-3px) scale(1.01);
+      border-color: var(--accent);
+    }
+
+    .art-card img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+      aspect-ratio: auto;
+    }
+
+    .art-meta {
+      position: absolute;
+      inset: auto 0 0 0;
+      padding: 12px 12px 10px;
+      background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.88));
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .art-title {
+      font-size: 12px;
+      color: #f5f2eb;
+      opacity: 0.96;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: var(--headline-font);
+    }
+
+    .art-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.35);
+      color: white;
+      border-radius: 12px;
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      text-decoration: none;
+      backdrop-filter: blur(8px);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .rail-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .rail-item {
+      padding: 14px 14px 12px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      display: grid;
+      gap: 8px;
+    }
+
+    .rail-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .rail-title {
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    .rail-sub {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+    }
+
+    .status-chip {
+      font-size: 11px;
+      padding: 6px 9px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .status-pending { background: rgba(255, 193, 7, 0.15); color: #ffd770; }
+    .status-running { background: rgba(103, 215, 255, 0.14); color: #9be8ff; }
+    .status-done { background: rgba(90, 232, 150, 0.14); color: #b9f8d0; }
+    .status-failed { background: rgba(255, 106, 106, 0.14); color: #ffb1b1; }
+    .status-badged { background: rgba(255, 119, 191, 0.14); color: #ffc0df; }
+
+    .status-pill {
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+      justify-self: end;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: end;
+      align-self: start;
+    }
+
+    .hero-badge {
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .history-grid,
+    .tasks-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .history-card,
+    .task-card {
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      display: grid;
+      gap: 10px;
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45);
+    }
+
+    .history-thumb-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: thin;
+    }
+
+    .history-thumb {
+      width: 72px;
+      height: 72px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid var(--border);
+      flex: 0 0 auto;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .history-thumb:hover {
+      transform: scale(1.03);
+    }
+
+    .history-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .history-title {
+      font-weight: 700;
+      font-size: 15px;
+      line-height: 1.3;
+      font-family: var(--headline-font);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    .history-sub {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(5, 5, 8, 0.9);
+      backdrop-filter: blur(12px);
+      z-index: 60;
+      padding: 20px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-panel {
+      width: min(1100px, 100%);
+      max-height: 92vh;
+      border-radius: 16px;
+      background: #101114;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .modal-head {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .modal-body {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      min-height: 0;
+    }
+
+    .modal-image-wrap {
+      background: #0b0b0d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      padding: 18px;
+    }
+
+    .modal-image {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-info {
+      padding: 18px;
+      border-left: 1px solid var(--border);
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .kv {
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+    }
+
+    .kv .k {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .kv .v {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .rail-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mini-btn {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 11px;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    @keyframes glitchShift {
+      0% { transform: translate(1px, 0); }
+      20% { transform: translate(-1px, 0); }
+      40% { transform: translate(2px, 0); }
+      60% { transform: translate(-2px, 0); }
+      80% { transform: translate(1px, 0); }
+      100% { transform: translate(0, 0); }
+    }
+
+    @media (max-width: 960px) {
+      .topbar { grid-template-columns: 1fr; }
+      .mode-switch, .nav-tabs { justify-content: start; overflow-x: auto; flex-wrap: nowrap; }
+      .generate-grid { grid-template-columns: 1fr; }
+      .row, .row-3 { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; }
+      .hero-actions { justify-content: start; }
+      .modal-body { grid-template-columns: 1fr; }
+      .modal-info { border-left: 0; border-top: 1px solid var(--border); }
+      .gallery { column-count: 2; }
+      .shell { width: min(100% - 16px, 100%); }
+    }
+
+    @media (max-width: 620px) {
+      .shell {
+        width: min(100% - 12px, 100%);
+        margin: 8px auto 18px;
+      }
+
+      .topbar {
+        padding: 12px;
+        border-radius: 20px;
+      }
+
+      .brand h1 {
+        font-size: 20px;
+      }
+
+      .card,
+      .hero,
+      .modal-panel {
+        border-radius: 22px;
+      }
+
+      .card header,
+      .card .body,
+      .hero {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .hero {
+        gap: 14px;
+      }
+
+      .field {
+        margin-bottom: 12px;
+      }
+
+      .btn,
+      .mini-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .mode-btn,
+      .nav-btn {
+        width: auto;
+        min-width: max-content;
+      }
+
+      .actions,
+      .rail-actions,
+      .hero-actions,
+      .modal-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .art-actions {
+        flex-direction: column;
+      }
+
+      .gallery {
+        column-count: 1;
+      }
+    }
+  </style>
 </head>
-
-<body class="pb-32" data-mode="standard">
-    <div class="ambient-bg">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-    </div>
-
-    <!-- Detail Modal -->
-    <div id="modal"
-        class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-2xl opacity-0 transition-opacity duration-500">
-        <div class="glass-panel max-w-6xl w-full max-h-[90vh] flex flex-col lg:flex-row overflow-hidden shadow-2xl scale-95 transition-transform duration-500"
-            id="modalContainer">
-            <div class="flex-1 bg-black/10 flex items-center justify-center p-6"><img id="modalImage" src=""
-                    class="max-w-full max-h-full object-contain rounded-xl shadow-2xl" /></div>
-            <div
-                class="w-full lg:w-[400px] p-8 flex flex-col gap-6 bg-white/5 overflow-y-auto border-t lg:border-l border-white/10">
-                <h3 class="text-3xl font-bold cinematic-text">Manifestation</h3>
-                <div class="space-y-4">
-                    <div class="p-4 bg-[var(--panel-bg)] rounded-xl border border-[var(--panel-border)] shadow-sm">
-                        <p class="text-[10px] uppercase tracking-widest text-[var(--text-muted)] mb-1 font-bold">The
-                            Vision</p>
-                        <p id="modalPrompt" class="text-sm font-medium italic"></p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div
-                            class="p-4 bg-[var(--panel-bg)] rounded-xl border border-[var(--panel-border)] transition-all">
-                            <p class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Brush</p>
-                            <p id="modalModel" class="font-bold text-sm"></p>
-                        </div>
-                        <div class="p-4 bg-[var(--panel-bg)] rounded-xl border border-[var(--panel-border)]">
-                            <p class="text-[10px] uppercase font-bold text-[var(--text-muted)]">Seed</p>
-                            <p id="modalSeed" class="font-bold text-sm"></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-auto space-y-4">
-                    <a id="downloadImageBtn" href="#" download
-                        class="block w-full py-4 btn-magic font-bold text-center uppercase tracking-widest shadow-xl">Save
-                        Image</a>
-                    <button onclick="closeModal()"
-                        class="w-full py-3 text-[var(--text-muted)] font-bold uppercase tracking-widest text-xs">Close</button>
-                </div>
-            </div>
+<body>
+  <div class="modal" id="modal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <div>
+          <div style="font-weight:700; letter-spacing:-0.02em;" id="modalTitle">Preview</div>
+          <div class="small" id="modalSubtitle">Generated image</div>
         </div>
-    </div>
-
-    <header class="sticky top-6 z-50 px-4 md:px-8">
-        <div
-            class="max-w-7xl mx-auto glass-panel p-3 flex items-center justify-between gap-6 overflow-x-auto no-scrollbar">
-            <div class="flex items-center gap-3 pl-2">
-                <div
-                    class="w-10 h-10 rounded-lg bg-[var(--accent)] text-white flex items-center justify-center shadow-lg transform -rotate-3 hover:rotate-0 transition-transform cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5">
-                        <path
-                            d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-                    </svg>
-                </div>
-                <h1 class="text-2xl font-black cinematic-text tracking-widest">AETHER</h1>
-            </div>
-            <nav class="flex items-center gap-2 bg-black/5 p-1 rounded-2xl border border-black/5">
-                <button data-view="generate"
-                    class="nav-pill active px-6 py-2 rounded-xl font-bold uppercase tracking-widest text-[10px] whitespace-nowrap">Forge</button>
-                <button data-view="tasks"
-                    class="nav-pill px-6 py-2 rounded-xl font-bold uppercase tracking-widest text-[10px] whitespace-nowrap">Queue</button>
-                <button data-view="history"
-                    class="nav-pill px-6 py-2 rounded-xl font-bold uppercase tracking-widest text-[10px] whitespace-nowrap">Vault</button>
-            </nav>
-            <div class="flex items-center gap-2 shrink-0 pr-2">
-                <button id="modeStandard" data-mode="standard"
-                    class="nav-pill px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest">Day</button>
-                <button id="modeNsfw" data-mode="nsfw"
-                    class="nav-pill px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest">Star</button>
-            </div>
+        <button class="btn btn-secondary" id="closeModalBtn">Close</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-image-wrap">
+          <img class="modal-image" id="modalImage" alt="Generated preview" />
         </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 md:px-8 py-10">
-        <section id="view-generate" class="view space-y-10">
-            <div
-                class="glass-panel p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10 border-t-8 border-t-[var(--accent)]">
-                <div class="space-y-6 max-w-xl">
-                    <h2 class="text-5xl md:text-7xl font-bold cinematic-text leading-[1.1]">Weave the <br /><span
-                            class="text-[var(--accent)] italic">Imagination</span></h2>
-                    <p class="text-[var(--text-muted)] text-lg font-medium leading-relaxed">Speak your vision. Our
-                        engines will paint reality.</p>
-                </div>
-                <div
-                    class="w-32 h-32 md:w-48 md:h-48 rounded-full border-[8px] border-[var(--accent)] border-dotted animate-[spin_20s_linear_infinite] opacity-30">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                <div class="lg:col-span-5 space-y-6">
-                    <div class="glass-panel p-8 space-y-6">
-                        <div class="space-y-2"><label
-                                class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] ml-2">Engine</label><select
-                                id="model" class="w-full h-14 px-4 font-bold"></select></div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-2"><label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] ml-2">Fidelity</label><select
-                                    id="quality" class="w-full h-14 px-4 font-bold"></select></div>
-                            <div class="space-y-2"><label
-                                    class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] ml-2">Canvas</label><select
-                                    id="aspect" class="w-full h-14 px-4 font-bold"></select></div>
-                        </div>
-                        <div class="space-y-2"><label
-                                class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] ml-2">The
-                                Vision</label><textarea id="prompt" placeholder="Describe the unseen..."
-                                class="w-full min-h-[160px] p-6 resize-none"></textarea></div>
-                        <div class="space-y-2"><label
-                                class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] ml-2">Wards
-                                (Negatives)</label><textarea id="negativePrompt"
-                                class="w-full min-h-[100px] p-4 text-xs resize-none"></textarea></div>
-                        <button id="generateBtn"
-                            class="w-full h-20 btn-magic flex items-center justify-center gap-4 text-xl font-bold cinematic-text uppercase tracking-widest shadow-xl">
-                            <span id="btnText">Manifest Vision</span>
-                            <div id="btnLoader" class="hidden">
-                                <div class="loader"></div>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-                <div class="lg:col-span-7 flex flex-col gap-6">
-                    <div class="glass-panel p-8 min-h-[500px] flex-1">
-                        <div class="flex items-center justify-between border-b border-[var(--panel-border)] pb-4 mb-8">
-                            <h3 class="text-xl cinematic-text font-bold text-[var(--text-muted)]">The Easel</h3>
-                            <div id="imageCount"
-                                class="text-[10px] font-bold text-[var(--accent)] bg-[var(--accent-glow)] px-4 py-1.5 rounded-full border border-[var(--accent)]">
-                                0 Visions</div>
-                        </div>
-                        <div id="gallery" class="grid grid-cols-1 sm:grid-cols-2 gap-6 content-start">
-                            <div class="col-span-full py-32 opacity-20 text-center space-y-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 mx-auto" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                                    <circle cx="9" cy="9" r="2" />
-                                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                                </svg>
-                                <p class="text-2xl font-bold cinematic-text">Canvas Ready</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="view-tasks" class="view hidden">
-            <div class="glass-panel p-10">
-                <h2 class="text-4xl font-bold cinematic-text mb-10">Active Journeys</h2>
-                <div id="taskList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
-            </div>
-        </section>
-        <section id="view-history" class="view hidden">
-            <div class="glass-panel p-10">
-                <h2 class="text-4xl font-bold cinematic-text mb-10">Vault</h2>
-                <div id="historyList" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
-            </div>
-        </section>
-    </main>
-
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-        <div id="footerStatus"
-            class="glass-panel py-3 px-8 rounded-full flex items-center gap-4 text-xs font-bold text-[var(--text-main)] shadow-2xl transition-all translate-y-20 opacity-0">
-            <span class="w-3 h-3 rounded-full bg-[var(--accent)] animate-pulse shadow-[0_0_8px_var(--accent)]"></span>
-            <span id="footerMsgText">Nexus Clear</span>
-        </div>
-    </div>
-
-    <script>
-        // Configuration & State
-        window.__SERVER_URL__ = "__SERVER_URL__";
-        window.__SERVER_URL_NSFW__ = "__SERVER_URL_NSFW__";
-
-        const SFW_MODELS = [
-            { "name": "Ani", "profile": "ani", "default_n_steps": 32, "default_guidance_scale": 8.5, "default_strength": 0.76, "default_negative_prompt": "text, watermark, blurry, monochrome, sketch, line art, drawing, pencil art, pen art, watermark, signature, low quality, bad quality" },
-            { "name": "Aura", "profile": "aura", "default_n_steps": 36, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "score_6, score_5, score_4, low res, huge breasts, mutated hands, bad hands, monochrome, grayscale, old, ugly, jewelry, accessory, bad eyes, bad face, muscular, chibi, buzzcut, watermark, logo" },
-            { "name": "Evo", "profile": "evo", "default_n_steps": 40, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "(worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth, watermark)" },
-            { "name": "Flux1 D", "profile": "flux1d", "default_n_steps": 35, "default_guidance_scale": 3.5, "default_strength": 0.76, "default_negative_prompt": "" },
-            { "name": "Fur", "profile": "fur", "default_n_steps": 25, "default_guidance_scale": 4.5, "default_strength": 0.76, "default_negative_prompt": "human, multiple tails, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, very displeasing, (worst" },
-            { "name": "FurXL Classic", "profile": "furxl", "default_n_steps": 40, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "(worst quality, low quality), watermarks, signature, (interlocked fingers)" },
-            { "name": "Gen", "profile": "gen", "default_n_steps": 30, "default_guidance_scale": 3.5, "default_strength": 0.76, "default_negative_prompt": "low quality, bad quality, mutated, low detail, blurry, out of focus, jpeg artifacts, bad anatomy, mutated hands, deformed hands, too many fingers, extra legs, extra arms, deformed feet, bad feet" },
-            { "name": "Glitch", "profile": "glitch", "default_n_steps": 30, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "loli, young, petite, patreon, bad anatomy, bad hands, error, missing fingers, extra digit, fewer digits, cropped,long legs,signature, patreon username, patreon logo" },
-            { "name": "Gothic", "profile": "gothic", "default_n_steps": 30, "default_guidance_scale": 4, "default_strength": 0.76, "default_negative_prompt": "3d, Negative prompt: worst_quality, bad_quality, poorly_detailed, 2d, sketch, ugly face, low res, interlocked fingers, anatomically incorrect hands, bad anatomy, {worst quality, low quality, normal quality}, (watermark, signature, letter, username, logo, " },
-            { "name": "Hyper CGI", "profile": "hypercgi", "default_n_steps": 25, "default_guidance_scale": 3, "default_strength": 0.76, "default_negative_prompt": "SmoothNegative_Hands-neg, Smooth Negative, modern, recent, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra fingers, e" },
-            { "name": "HyperX", "profile": "hyperx", "default_n_steps": 28, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "blur, bad quality, bad composition, copyright, watermark, lineart, pixelated, pixelated, painting, sketch" },
-            { "name": "Muse", "profile": "muse", "default_n_steps": 28, "default_guidance_scale": 3, "default_strength": 0.76, "default_negative_prompt": "" },
-            { "name": "Nai", "profile": "nai", "default_n_steps": 50, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "child, loli, young, source_furry, source_pony, monochrome, 3d, censored, (worst quality, low quality:1.4), (jpeg artifacts:1.4), negative_hand, negative_hand-neg, watermark, signature, text" },
-            { "name": "Neo", "profile": "neo", "default_n_steps": 35, "default_guidance_scale": 4, "default_strength": 0.76, "default_negative_prompt": "" },
-            { "name": "Noob", "profile": "noob", "default_n_steps": 32, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "worst quality, old, early, low quality, lowres, signature, username, logo, bad hands, mutated hands, mammal, anthro, furry, ambiguous form, feral, semi-anthro" },
-            { "name": "Pixel", "profile": "pixel", "default_n_steps": 26, "default_guidance_scale": 3.5, "default_strength": 0.76, "default_negative_prompt": "bad quality, worst quality, worst detail, copyright name, bad anatomy, watermark" },
-            { "name": "Pony", "profile": "pony", "default_n_steps": 30, "default_guidance_scale": 6, "default_strength": 0.76, "default_negative_prompt": "score_6, score_5, score_4, nsfw, pumpkin, 3d, blurry, cropped, signature, username, watermark, jpeg artifacts, normal quality, worst quality, low quality, (missing fingers, extra digits, extra fingers, fewer digits, bad hands:1.3), bad eye,(deformed, dist" },
-            { "name": "Rend", "profile": "rend", "default_n_steps": 40, "default_guidance_scale": 6, "default_strength": 0.76, "default_negative_prompt": "worst_quality, bad_quality, poorly_detailed, long neck" },
-            { "name": "Retro", "profile": "retro", "default_n_steps": 30, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "worst quality, low quality, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digits, fewer digits, cropped, jpeg artifacts, signature, watermark, username, blurry, artist name, old, early, lowres, logo, mutated hands, mammal, anthro, fu" },
-            { "name": "Supra", "profile": "supra", "default_n_steps": 50, "default_guidance_scale": 2, "default_strength": 0.76, "default_negative_prompt": "(deformed iris, deformed pupils), worst quality, low quality, blurry, text" },
-            { "name": "Synth", "profile": "synth", "default_n_steps": 40, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "bad quality, worst quality, worst detail, censor, bad anatomy, patreon, name, signature, child, underage, loli" },
-            { "name": "Toon", "profile": "toon", "default_n_steps": 53, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "score_6, score_5, score_4, ugly face, mutated hands, ahegao, bad eyes, monochrome, sketch, ugly style" },
-            { "name": "Volt", "profile": "volt", "default_n_steps": 30, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "bad quality, poor quality, disfigured, jpg, toy, bad anatomy, missing limbs, missing fingers, ugly, scary, watermark" },
-            { "name": "Wassie", "profile": "wassie", "default_n_steps": 40, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "wrong,imperfect hands, painting, sketch, concept art, cross-eyed,sketches, (worst quality:2), (low quality:2), (normal quality:2), lowres, normal quality, skin spots, acnes, skin blemishes, bad anatomy, DeepNegative, facing away, tilted head, lowres, bad " }
-        ];
-
-        const NSFW_MODELS = [
-            { "name": "Gen", "profile": "gen", "default_n_steps": 30, "default_guidance_scale": 3.5, "default_strength": 0.76, "default_negative_prompt": "low quality, bad quality, mutated, low detail, blurry, out of focus, jpeg artifacts, bad anatomy, mutated hands, deformed hands, too many fingers, extra legs, extra arms, deformed feet, bad feet" },
-            { "name": "Ani", "profile": "ani", "default_n_steps": 32, "default_guidance_scale": 8.5, "default_strength": 0.76, "default_negative_prompt": "text, watermark, blurry, monochrome, sketch, line art, drawing, pencil art, pen art, watermark, signature, low quality, bad quality" },
-            { "name": "Synth", "profile": "synth", "default_n_steps": 40, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "bad quality, worst quality, worst detail, censor, bad anatomy, patreon, name, signature, child, underage, loli" },
-            { "name": "Fur", "profile": "fur", "default_n_steps": 25, "default_guidance_scale": 4.5, "default_strength": 0.76, "default_negative_prompt": "human, multiple tails, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, very displeasing, (worst" },
-            { "name": "Noob", "profile": "noob", "default_n_steps": 32, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "worst quality, old, early, low quality, lowres, signature, username, logo, bad hands, mutated hands, mammal, anthro, furry, ambiguous form, feral, semi-anthro" },
-            { "name": "Aura", "profile": "aura", "default_n_steps": 36, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "score_6, score_5, score_4, low res, huge breasts, mutated hands, bad hands, monochrome, grayscale, old, ugly, jewelry, accessory, bad eyes, bad face, muscular, chibi, buzzcut, watermark, logo" },
-            { "name": "Pixel", "profile": "pixel", "default_n_steps": 26, "default_guidance_scale": 3.5, "default_strength": 0.76, "default_negative_prompt": "bad quality, worst quality, worst detail, copyright name, bad anatomy, watermark" },
-            { "name": "Hyper CGI", "profile": "hypercgi", "default_n_steps": 25, "default_guidance_scale": 3, "default_strength": 0.76, "default_negative_prompt": "SmoothNegative_Hands-neg, Smooth Negative, modern, recent, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra fingers, e" },
-            { "name": "Volt", "profile": "volt", "default_n_steps": 30, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "bad quality, poor quality, disfigured, jpg, toy, bad anatomy, missing limbs, missing fingers, ugly, scary, watermark" },
-            { "name": "Muse", "profile": "muse", "default_n_steps": 28, "default_guidance_scale": 3, "default_strength": 0.76, "default_negative_prompt": "" },
-            { "name": "Rend", "profile": "rend", "default_n_steps": 40, "default_guidance_scale": 6, "default_strength": 0.76, "default_negative_prompt": "worst_quality, bad_quality, poorly_detailed, long neck" },
-            { "name": "Pony", "profile": "pony", "default_n_steps": 30, "default_guidance_scale": 6, "default_strength": 0.76, "default_negative_prompt": "score_6, score_5, score_4, nsfw, pumpkin, 3d, blurry, cropped, signature, username, watermark, jpeg artifacts, normal quality, worst quality, low quality, (missing fingers, extra digits, extra fingers, fewer digits, bad hands:1.3), bad eye,(deformed, dist" },
-            { "name": "Neo", "profile": "neo", "default_n_steps": 35, "default_guidance_scale": 4, "default_strength": 0.76, "default_negative_prompt": "" },
-            { "name": "Nai", "profile": "nai", "default_n_steps": 50, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "child, loli, young, source_furry, source_pony, monochrome, 3d, censored, (worst quality, low quality:1.4), (jpeg artifacts:1.4), negative_hand, negative_hand-neg, watermark, signature, text" },
-            { "name": "Retro", "profile": "retro", "default_n_steps": 30, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "worst quality, low quality, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digits, fewer digits, cropped, jpeg artifacts, signature, watermark, username, blurry, artist name, old, early, lowres, logo, mutated hands, mammal, anthro, furry" },
-            { "name": "Supra", "profile": "supra", "default_n_steps": 50, "default_guidance_scale": 2, "default_strength": 0.76, "default_negative_prompt": "(deformed iris, deformed pupils), worst quality, low quality, blurry, text" },
-            { "name": "Evo", "profile": "evo", "default_n_steps": 40, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "(worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth, watermark)" },
-            { "name": "Toon", "profile": "toon", "default_n_steps": 53, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "score_6, score_5, score_4, ugly face, mutated hands, ahegao, bad eyes, monochrome, sketch, ugly style" },
-            { "name": "HyperX", "profile": "hyperx", "default_n_steps": 28, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "blur, bad quality, bad composition, copyright, watermark, lineart, pixelated, pixelated, painting, sketch" },
-            { "name": "FurXL Classic", "profile": "furxl", "default_n_steps": 40, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "(worst quality, low quality), watermarks, signature, (interlocked fingers)" },
-            { "name": "Illustrious", "profile": "illustrious", "default_n_steps": 53, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "bad quality, worst quality, worst detail, sketch, censor, signature, watermark, patreon username, patreon logo" },
-            { "name": "Real Amateurs", "profile": "real_amateurs", "default_n_steps": 25, "default_guidance_scale": 3.5, "default_strength": 0.76, "default_negative_prompt": "asymmetrical-eyes, mismatched eyes, deformed eyes, (turkey-neck:1.2)" },
-            { "name": "RealX", "profile": "realx", "default_n_steps": 30, "default_guidance_scale": 5, "default_strength": 0.76, "default_negative_prompt": "CyberRealistic_Negative_PONY_V2, watermark, logo, label" },
-            { "name": "Real Classic", "profile": "realclassic", "default_n_steps": 28, "default_guidance_scale": 7, "default_strength": 0.76, "default_negative_prompt": "watermark, logomark, text, score 1, score 2, score 3, text, cartoon, anime, worst quality, low quality, bad anatomy, bad hands, bad eyes" }
-        ];
-
-        const state = {
-            models: [], serverUrl: "", modelDefaults: null,
-            history: JSON.parse(localStorage.getItem("aether_history") || "[]"),
-            tasks: JSON.parse(localStorage.getItem("aether_tasks") || "[]"),
-            activeMode: localStorage.getItem("aether_mode") || "standard",
-            activeView: localStorage.getItem("aether_view") || "generate",
-            lastModelByMode: JSON.parse(localStorage.getItem("aether_last_models") || "{}"),
-        };
-
-        const dom = {
-            model: document.getElementById("model"), quality: document.getElementById("quality"), aspect: document.getElementById("aspect"),
-            seed: document.getElementById("seed"), prompt: document.getElementById("prompt"), negativePrompt: document.getElementById("negativePrompt"),
-            generateBtn: document.getElementById("generateBtn"), btnText: document.getElementById("btnText"), btnLoader: document.getElementById("btnLoader"),
-            gallery: document.getElementById("gallery"), imageCount: document.getElementById("imageCount"), taskList: document.getElementById("taskList"),
-            historyList: document.getElementById("historyList"), footerStatus: document.getElementById("footerStatus"),
-            footerMsgText: document.getElementById("footerMsgText"), modal: document.getElementById("modal"), modalContainer: document.getElementById("modalContainer"),
-            modalImage: document.getElementById("modalImage"), modalPrompt: document.getElementById("modalPrompt"), modalModel: document.getElementById("modalModel"),
-            modalSeed: document.getElementById("modalSeed"), downloadImageBtn: document.getElementById("downloadImageBtn"),
-        };
-
-        function setFooterMsg(msg) {
-            if (!dom.footerStatus) return;
-            dom.footerMsgText.textContent = msg;
-            dom.footerStatus.classList.remove("translate-y-20", "opacity-0");
-            setTimeout(() => dom.footerStatus.classList.add("translate-y-20", "opacity-0"), 3000);
-        }
-
-        function getServerUrl() {
-            const origin = window.location.origin;
-            const std = (window.__SERVER_URL__ && !window.__SERVER_URL__.startsWith("__")) ? window.__SERVER_URL__ : origin;
-            return (state.activeMode === "nsfw" ? (window.__SERVER_URL_NSFW__ && !window.__SERVER_URL_NSFW__.startsWith("__") ? window.__SERVER_URL_NSFW__ : std) : std).replace(/\/$/, "");
-        }
-
-        function persist() {
-            localStorage.setItem("aether_history", JSON.stringify(state.history));
-            localStorage.setItem("aether_tasks", JSON.stringify(state.tasks));
-            localStorage.setItem("aether_mode", state.activeMode);
-            localStorage.setItem("aether_view", state.activeView);
-            localStorage.setItem("aether_last_models", JSON.stringify(state.lastModelByMode));
-        }
-
-        function setView(view) {
-            state.activeView = view;
-            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-            document.getElementById(`view-${view}`).classList.remove('hidden');
-            document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
-            persist();
-        }
-
-        function applyMode(mode) {
-            state.activeMode = mode;
-            document.body.dataset.mode = mode;
-            state.serverUrl = getServerUrl();
-            const catalog = mode === 'nsfw' ? NSFW_MODELS : SFW_MODELS;
-            state.models = catalog;
-            dom.model.innerHTML = catalog.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
-            const last = state.lastModelByMode[mode];
-            if (last && catalog.some(m => m.name === last)) dom.model.value = last;
-            dom.quality.innerHTML = ['Fast', 'High Quality'].map(q => `<option value="${q}">${q}</option>`).join('');
-            dom.aspect.innerHTML = ['1:1', '16:9', '5:2', '4:5', '4:7'].map(a => `<option value="${a}">${a}</option>`).join('');
-            document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-            loadDefaults(); renderArchive(); renderQueue(); persist();
-            setFooterMsg(`Realm: ${mode.toUpperCase()}`);
-        }
-
-        function loadDefaults() {
-            const model = state.models.find(m => m.name === dom.model.value);
-            if (model) dom.negativePrompt.value = model.default_negative_prompt || "";
-        }
-
-        function openModal(item) {
-            dom.modalImage.src = item.url;
-            dom.modalPrompt.textContent = item.prompt;
-            dom.modalModel.textContent = item.model;
-            dom.modalSeed.textContent = item.seed || "Divine";
-            dom.downloadImageBtn.href = item.url;
-            dom.modal.classList.remove('hidden'); dom.modal.classList.add('flex');
-            setTimeout(() => { dom.modal.classList.add('opacity-100'); dom.modalContainer.classList.remove('scale-95'); }, 10);
-        }
-
-        function closeModal() {
-            dom.modal.classList.remove('opacity-100'); dom.modalContainer.classList.add('scale-95');
-            setTimeout(() => { dom.modal.classList.add('hidden'); dom.modal.classList.remove('flex'); }, 500);
-        }
-
-        function renderArchive() {
-            if (state.history.length === 0) { dom.historyList.innerHTML = `<div class="col-span-full py-20 text-center opacity-20 font-bold cinematic-text text-3xl">The Vault is empty</div>`; return; }
-            dom.historyList.innerHTML = state.history.map(item => `
-        <div class="art-frame cursor-pointer" onclick="openArchiveItem('${item.id}')">
-          <div class="aspect-square relative"><img src="${item.image_urls[0]}" class="w-full h-full object-cover"></div>
-          <div class="p-4 bg-white/5"><p class="text-[10px] font-bold uppercase text-[var(--accent)]">${item.model}</p></div>
-        </div>
-      `).join('');
-        }
-
-        function openArchiveItem(id) {
-            const item = state.history.find(h => h.id === id);
-            if (item) openModal({ ...item, url: item.image_urls[0] });
-        }
-
-        function renderQueue() {
-            if (state.tasks.length === 0) { dom.taskList.innerHTML = `<div class="col-span-full py-20 text-center opacity-20 font-bold cinematic-text text-3xl">No active journeys</div>`; return; }
-            dom.taskList.innerHTML = state.tasks.map(t => `
-        <div class="p-6 glass-panel border-2 border-[var(--accent)] space-y-4">
-          <div class="flex justify-between items-center"><span class="text-xs font-bold uppercase text-[var(--accent)]">${t.status}</span><span class="text-[10px] opacity-40">${t.created}</span></div>
-          <p class="text-sm font-bold italic truncate">"${t.prompt}"</p>
-        </div>
-      `).join('');
-        }
-
-        document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
-        document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => applyMode(b.dataset.mode)));
-        dom.model.addEventListener('change', () => { state.lastModelByMode[state.activeMode] = dom.model.value; loadDefaults(); persist(); });
-
-        dom.generateBtn.addEventListener('click', async () => {
-            const prompt = dom.prompt.value.trim();
-            if (!prompt) { setFooterMsg("Inspiration required."); return; }
-            const taskId = `v-${Date.now()}`;
-            const payload = { model: dom.model.value, quality: dom.quality.value, aspect: dom.aspect.value, prompt, negative_prompt: dom.negativePrompt.value, seed: dom.seed.value ? Number(dom.seed.value) : null, nsfw: state.activeMode === 'nsfw' };
-            state.tasks.unshift({ id: taskId, ...payload, status: 'weaving', created: new Date().toLocaleTimeString() });
-            renderQueue();
-            dom.generateBtn.disabled = true; dom.btnText.textContent = "Weaving..."; dom.btnLoader.classList.remove('hidden');
-            try {
-                const resp = await fetch(`${state.serverUrl}/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!resp.ok) throw new Error();
-                const res = await resp.json();
-                state.tasks = state.tasks.filter(t => t.id !== taskId);
-                state.history.unshift({ id: taskId, ...payload, image_urls: res.image_urls, created: new Date().toLocaleString() });
-                dom.gallery.innerHTML = res.image_urls.map(url => `
-          <div class="art-frame cursor-pointer" onclick="openModal({model:'${payload.model}', url:'${url}', prompt:'${prompt.replace(/'/g, "")}', seed:'${payload.seed || "Divine"}'})">
-            <img src="${url}" class="w-full h-full object-cover">
+        <aside class="modal-info">
+          <div class="kv">
+            <div class="k">Prompt</div>
+            <div class="v" id="modalPrompt"></div>
           </div>
-        `).join('');
-                dom.imageCount.textContent = `${res.image_urls.length} Visions`;
-                renderArchive(); renderQueue(); setFooterMsg("Vision complete.");
-            } catch (e) { setFooterMsg("Weave unravelling."); state.tasks = state.tasks.filter(t => t.id !== taskId); renderQueue(); }
-            finally { dom.generateBtn.disabled = false; dom.btnText.textContent = "Manifest Vision"; dom.btnLoader.classList.add('hidden'); persist(); }
+          <div class="kv">
+            <div class="k">Model</div>
+            <div class="v" id="modalModel"></div>
+          </div>
+          <div class="kv">
+            <div class="k">Resolution</div>
+            <div class="v" id="modalResolution"></div>
+          </div>
+          <div class="kv">
+            <div class="k">Seed</div>
+            <div class="v" id="modalSeed"></div>
+          </div>
+          <div class="modal-actions">
+            <a class="btn btn-primary" id="downloadImageBtn" href="#" download>Download</a>
+            <a class="btn btn-secondary" id="openImageBtn" href="#" target="_blank" rel="noreferrer">Open image</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+  <header class="topbar">
+    <div class="brand">
+      <h1 class="glitch" data-text="PromptStore">PromptStore</h1>
+      <div class="small" id="serverStatus">Choose generation mode</div>
+    </div>
+    <div class="mode-switch" role="tablist" aria-label="Generation mode">
+      <button class="mode-btn" id="modeStandard" type="button" data-mode="standard">Standard</button>
+      <button class="mode-btn" id="modeNsfw" type="button" data-mode="nsfw">NSFW</button>
+    </div>
+    <div class="nav-tabs" role="tablist" aria-label="Workspace views">
+      <button class="nav-btn active" type="button" data-view="generate">Create</button>
+      <button class="nav-btn" type="button" data-view="tasks">Tasks</button>
+      <button class="nav-btn" type="button" data-view="history">History</button>
+    </div>
+  </header>
+
+  <main class="shell app">
+    <section class="view active" data-view-panel="generate">
+      <section class="hero">
+        <div>
+          <div class="eyebrow">Signal deck</div>
+          <h1 id="heroTitle" class="glitch" data-text="Compose the glitch">Compose the glitch</h1>
+          <p id="heroCopy">A pixel-glitch prompt forge for fast mode switching, model swapping, and image history with attitude.</p>
+          <div class="chips">
+            <span class="chip">Mode-aware models</span>
+            <span class="chip">Live task queue</span>
+            <span class="chip">Image history</span>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <div class="hero-badge" id="modeStatus">Choose Standard or NSFW</div>
+          <div class="status-pill" id="defaultsLine">Choose a mode to load models</div>
+        </div>
+      </section>
+
+      <div class="generate-grid">
+        <article class="card">
+          <header>
+            <h2>Signal Forge</h2>
+            <div class="small">Fast model switching</div>
+          </header>
+          <div class="body">
+            <div class="field" style="display:none;">
+              <label for="serverUrl">Server URL</label>
+              <input id="serverUrl" />
+            </div>
+
+            <div class="field">
+              <label for="model">Model</label>
+              <select id="model"></select>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="quality">Quality</label>
+                <select id="quality"></select>
+              </div>
+              <div class="field">
+                <label for="aspect">Aspect Ratio</label>
+                <select id="aspect"></select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="prompt">Prompt</label>
+              <textarea id="prompt" placeholder="Describe the image you want to generate..."></textarea>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="negativePrompt">Negative Prompt</label>
+                <textarea id="negativePrompt" placeholder="Leave empty for no negative prompt"></textarea>
+              </div>
+              <div class="field">
+                <label for="seed">Seed</label>
+                <input id="seed" type="number" placeholder="Leave blank for random" />
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn btn-primary" id="generateBtn">Generate</button>
+              <button class="btn btn-secondary" id="clearBtn">Clear Results</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <header>
+            <h2>Output Deck</h2>
+            <div class="small" id="imageCount">0 images</div>
+          </header>
+          <div class="body">
+            <div class="gallery" id="gallery"></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" data-view-panel="tasks">
+      <article class="card">
+        <header>
+          <h2>Live Queue</h2>
+          <div class="small" id="taskCount">0 tasks</div>
+        </header>
+        <div class="body">
+          <div class="tasks-grid" id="taskList"></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="view" data-view-panel="history">
+      <article class="card">
+        <header>
+          <h2>Archive</h2>
+          <div class="small" id="historyCount">0 saved</div>
+        </header>
+        <div class="body">
+          <div class="history-grid" id="historyList"></div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    window.__SERVER_URL__ = "__SERVER_URL__";
+    window.__SERVER_URL_NSFW__ = "__SERVER_URL_NSFW__";
+    const SFW_MODELS = [
+      {"name":"Ani","profile":"ani","default_n_steps":32,"default_guidance_scale":8.5,"default_strength":0.76,"default_negative_prompt":"text, watermark, blurry, monochrome, sketch, line art, drawing, pencil art, pen art, watermark, signature, low quality, bad quality"},
+      {"name":"Aura","profile":"aura","default_n_steps":36,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"score_6, score_5, score_4, low res, huge breasts, mutated hands, bad hands, monochrome, grayscale, old, ugly, jewelry, accessory, bad eyes, bad face, muscular, chibi, buzzcut, watermark, logo"},
+      {"name":"Evo","profile":"evo","default_n_steps":40,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"(worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth, watermark)"},
+      {"name":"Flux1 D","profile":"flux1d","default_n_steps":35,"default_guidance_scale":3.5,"default_strength":0.76,"default_negative_prompt":""},
+      {"name":"Fur","profile":"fur","default_n_steps":25,"default_guidance_scale":4.5,"default_strength":0.76,"default_negative_prompt":"human, multiple tails, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, very displeasing, (worst"},
+      {"name":"FurXL Classic","profile":"furxl","default_n_steps":40,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"(worst quality, low quality), watermarks, signature, (interlocked fingers)"},
+      {"name":"Gen","profile":"gen","default_n_steps":30,"default_guidance_scale":3.5,"default_strength":0.76,"default_negative_prompt":"low quality, bad quality, mutated, low detail, blurry, out of focus, jpeg artifacts, bad anatomy, mutated hands, deformed hands, too many fingers, extra legs, extra arms, deformed feet, bad feet"},
+      {"name":"Glitch","profile":"glitch","default_n_steps":30,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"loli, young, petite, patreon, bad anatomy, bad hands, error, missing fingers, extra digit, fewer digits, cropped,long legs,signature, patreon username, patreon logo"},
+      {"name":"Gothic","profile":"gothic","default_n_steps":30,"default_guidance_scale":4,"default_strength":0.76,"default_negative_prompt":"3d, Negative prompt: worst_quality, bad_quality, poorly_detailed, 2d, sketch, ugly face, low res, interlocked fingers, anatomically incorrect hands, bad anatomy, {worst quality, low quality, normal quality}, (watermark, signature, letter, username, logo, "},
+      {"name":"Hyper CGI","profile":"hypercgi","default_n_steps":25,"default_guidance_scale":3,"default_strength":0.76,"default_negative_prompt":"SmoothNegative_Hands-neg, Smooth Negative, modern, recent, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra fingers, e"},
+      {"name":"HyperX","profile":"hyperx","default_n_steps":28,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"blur, bad quality, bad composition, copyright, watermark, lineart, pixelated, pixelart, drawing, painting, sketch"},
+      {"name":"Muse","profile":"muse","default_n_steps":28,"default_guidance_scale":3,"default_strength":0.76,"default_negative_prompt":""},
+      {"name":"Nai","profile":"nai","default_n_steps":50,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"child, loli, young, source_furry, source_pony, monochrome, 3d, censored, (worst quality, low quality:1.4), (jpeg artifacts:1.4), negative_hand, negative_hand-neg, watermark, signature, text"},
+      {"name":"Neo","profile":"neo","default_n_steps":35,"default_guidance_scale":4,"default_strength":0.76,"default_negative_prompt":""},
+      {"name":"Noob","profile":"noob","default_n_steps":32,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"worst quality, old, early, low quality, lowres, signature, username, logo, bad hands, mutated hands, mammal, anthro, furry, ambiguous form, feral, semi-anthro"},
+      {"name":"Pixel","profile":"pixel","default_n_steps":26,"default_guidance_scale":3.5,"default_strength":0.76,"default_negative_prompt":"bad quality, worst quality, worst detail, copyright name, bad anatomy, watermark"},
+      {"name":"Pony","profile":"pony","default_n_steps":30,"default_guidance_scale":6,"default_strength":0.76,"default_negative_prompt":"score_6, score_5, score_4, nsfw, pumpkin, 3d, blurry, cropped, signature, username, watermark, jpeg artifacts, normal quality, worst quality, low quality, (missing fingers, extra digits, extra fingers, fewer digits, bad hands:1.3), bad eye,(deformed, dist"},
+      {"name":"Rend","profile":"rend","default_n_steps":40,"default_guidance_scale":6,"default_strength":0.76,"default_negative_prompt":"worst_quality, bad_quality, poorly_detailed, long neck"},
+      {"name":"Retro","profile":"retro","default_n_steps":30,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"worst quality, low quality, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digits, fewer digits, cropped, jpeg artifacts, signature, watermark, username, blurry, artist name, old, early, lowres, logo, mutated hands, mammal, anthro, fu"},
+      {"name":"Supra","profile":"supra","default_n_steps":50,"default_guidance_scale":2,"default_strength":0.76,"default_negative_prompt":"(deformed iris, deformed pupils), worst quality, low quality, blurry, text"},
+      {"name":"Synth","profile":"synth","default_n_steps":40,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"bad quality, worst quality, worst detail, censor, bad anatomy, patreon, name, signature, child, underage, loli"},
+      {"name":"Toon","profile":"toon","default_n_steps":53,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"score_6, score_5, score_4, ugly face, mutated hands, ahegao, bad eyes, monochrome, sketch, ugly style"},
+      {"name":"Volt","profile":"volt","default_n_steps":30,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"bad quality, poor quality, disfigured, jpg, toy, bad anatomy, missing limbs, missing fingers, ugly, scary, watermark"},
+      {"name":"Wassie","profile":"wassie","default_n_steps":40,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"wrong,imperfect hands, painting, sketch, concept art, cross-eyed,sketches, (worst quality:2), (low quality:2), (normal quality:2), lowres, normal quality, skin spots, acnes, skin blemishes, bad anatomy, DeepNegative, facing away, tilted head, lowres, bad "}
+    ];
+
+    const NSFW_MODELS = [
+      {"name":"Gen","profile":"gen","default_n_steps":30,"default_guidance_scale":3.5,"default_strength":0.76,"default_negative_prompt":"low quality, bad quality, mutated, low detail, blurry, out of focus, jpeg artifacts, bad anatomy, mutated hands, deformed hands, too many fingers, extra legs, extra arms, deformed feet, bad feet"},
+      {"name":"Ani","profile":"ani","default_n_steps":32,"default_guidance_scale":8.5,"default_strength":0.76,"default_negative_prompt":"text, watermark, blurry, monochrome, sketch, line art, drawing, pencil art, pen art, watermark, signature, low quality, bad quality"},
+      {"name":"Synth","profile":"synth","default_n_steps":40,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"bad quality, worst quality, worst detail, censor, bad anatomy, patreon, name, signature, child, underage, loli"},
+      {"name":"Fur","profile":"fur","default_n_steps":25,"default_guidance_scale":4.5,"default_strength":0.76,"default_negative_prompt":"human, multiple tails, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra digits, fewer digits, very displeasing, (worst"},
+      {"name":"Noob","profile":"noob","default_n_steps":32,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"worst quality, old, early, low quality, lowres, signature, username, logo, bad hands, mutated hands, mammal, anthro, furry, ambiguous form, feral, semi-anthro"},
+      {"name":"Aura","profile":"aura","default_n_steps":36,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"score_6, score_5, score_4, low res, huge breasts, mutated hands, bad hands, monochrome, grayscale, old, ugly, jewelry, accessory, bad eyes, bad face, muscular, chibi, buzzcut, watermark, logo"},
+      {"name":"Pixel","profile":"pixel","default_n_steps":26,"default_guidance_scale":3.5,"default_strength":0.76,"default_negative_prompt":"bad quality, worst quality, worst detail, copyright name, bad anatomy, watermark"},
+      {"name":"Hyper CGI","profile":"hypercgi","default_n_steps":25,"default_guidance_scale":3,"default_strength":0.76,"default_negative_prompt":"SmoothNegative_Hands-neg, Smooth Negative, modern, recent, old, oldest, cartoon, graphic, text, painting, crayon, graphite, abstract, glitch, deformed, mutated, ugly, disfigured, long body, lowres, bad anatomy, bad hands, missing fingers, extra fingers, e"},
+      {"name":"Volt","profile":"volt","default_n_steps":30,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"bad quality, poor quality, disfigured, jpg, toy, bad anatomy, missing limbs, missing fingers, ugly, scary, watermark"},
+      {"name":"Muse","profile":"muse","default_n_steps":28,"default_guidance_scale":3,"default_strength":0.76,"default_negative_prompt":""},
+      {"name":"Rend","profile":"rend","default_n_steps":40,"default_guidance_scale":6,"default_strength":0.76,"default_negative_prompt":"worst_quality, bad_quality, poorly_detailed, long neck"},
+      {"name":"Pony","profile":"pony","default_n_steps":30,"default_guidance_scale":6,"default_strength":0.76,"default_negative_prompt":"score_6, score_5, score_4, nsfw, pumpkin, 3d, blurry, cropped, signature, username, watermark, jpeg artifacts, normal quality, worst quality, low quality, (missing fingers, extra digits, extra fingers, fewer digits, bad hands:1.3), bad eye,(deformed, dist"},
+      {"name":"Neo","profile":"neo","default_n_steps":35,"default_guidance_scale":4,"default_strength":0.76,"default_negative_prompt":""},
+      {"name":"Nai","profile":"nai","default_n_steps":50,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"child, loli, young, source_furry, source_pony, monochrome, 3d, censored, (worst quality, low quality:1.4), (jpeg artifacts:1.4), negative_hand, negative_hand-neg, watermark, signature, text"},
+      {"name":"Glitch","profile":"glitch","default_n_steps":30,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"loli, young, petite, patreon, bad anatomy, bad hands, error, missing fingers, extra digit, fewer digits, cropped,long legs,signature, patreon username, patreon logo"},
+      {"name":"Supra","profile":"supra","default_n_steps":50,"default_guidance_scale":2,"default_strength":0.76,"default_negative_prompt":"(deformed iris, deformed pupils), worst quality, low quality, blurry, text"},
+      {"name":"Evo","profile":"evo","default_n_steps":40,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"(worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch), open mouth, watermark)"},
+      {"name":"Toon","profile":"toon","default_n_steps":53,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"score_6, score_5, score_4, ugly face, mutated hands, ahegao, bad eyes, monochrome, sketch, ugly style"},
+      {"name":"HyperX","profile":"hyperx","default_n_steps":28,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"blur, bad quality, bad composition, copyright, watermark, lineart, pixelated, pixelart, drawing, painting, sketch"},
+      {"name":"FurXL Classic","profile":"furxl","default_n_steps":40,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"(worst quality, low quality), watermarks, signature, (interlocked fingers)"},
+      {"name":"Illustrious","profile":"illustrious","default_n_steps":53,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"bad quality, worst quality, worst detail, sketch, censor, signature, watermark, patreon username, patreon logo"},
+      {"name":"Real Amateurs","profile":"real_amateurs","default_n_steps":25,"default_guidance_scale":3.5,"default_strength":0.76,"default_negative_prompt":"asymmetrical-eyes, mismatched eyes, deformed eyes, (turkey-neck:1.2)"},
+      {"name":"RealX","profile":"realx","default_n_steps":30,"default_guidance_scale":5,"default_strength":0.76,"default_negative_prompt":"CyberRealistic_Negative_PONY_V2, watermark, logo, label"},
+      {"name":"Real Classic","profile":"realclassic","default_n_steps":28,"default_guidance_scale":7,"default_strength":0.76,"default_negative_prompt":"watermark, logomark, text, score 1, score 2, score 3, text, cartoon, anime, worst quality, low quality, bad anatomy, bad hands, bad eyes"}
+    ];
+    const state = {
+      models: [],
+      serverUrl: "",
+      modelDefaults: null,
+      lastGenerated: [],
+      history: JSON.parse(localStorage.getItem("promptstore_history") || "[]"),
+      tasks: JSON.parse(localStorage.getItem("promptstore_tasks") || "[]"),
+      modeChosen: false,
+      activeMode: localStorage.getItem("promptstore_mode") || "",
+      activeView: localStorage.getItem("promptstore_view") || "generate",
+      lastModelByMode: JSON.parse(localStorage.getItem("promptstore_last_models") || "{}"),
+    };
+
+    const el = (id) => document.getElementById(id);
+
+    const dom = {
+      serverUrl: el("serverUrl"),
+      serverStatus: el("serverStatus"),
+      modeStandard: el("modeStandard"),
+      modeNsfw: el("modeNsfw"),
+      model: el("model"),
+      quality: el("quality"),
+      aspect: el("aspect"),
+      seed: el("seed"),
+      prompt: el("prompt"),
+      negativePrompt: el("negativePrompt"),
+      generateBtn: el("generateBtn"),
+      clearBtn: el("clearBtn"),
+      gallery: el("gallery"),
+      imageCount: el("imageCount"),
+      historyCount: el("historyCount"),
+      historyList: el("historyList"),
+      taskCount: el("taskCount"),
+      taskList: el("taskList"),
+      defaultsLine: el("defaultsLine"),
+      heroTitle: el("heroTitle"),
+      heroCopy: el("heroCopy"),
+      modeStatus: el("modeStatus"),
+      navButtons: Array.from(document.querySelectorAll("[data-view]")),
+      modeButtons: Array.from(document.querySelectorAll("[data-mode]")),
+      modal: el("modal"),
+      modalTitle: el("modalTitle"),
+      modalSubtitle: el("modalSubtitle"),
+      modalImage: el("modalImage"),
+      modalPrompt: el("modalPrompt"),
+      modalModel: el("modalModel"),
+      modalResolution: el("modalResolution"),
+      modalSeed: el("modalSeed"),
+      closeModalBtn: el("closeModalBtn"),
+      downloadImageBtn: el("downloadImageBtn"),
+      openImageBtn: el("openImageBtn"),
+    };
+
+    function setStatus(text, good = false) {
+      dom.serverStatus.textContent = text;
+      dom.serverStatus.style.color = good ? "#bff7d0" : "var(--muted)";
+    }
+
+    function getServerUrl() {
+      const standardFallback = window.__SERVER_URL__ || localStorage.getItem("imgnai_server_url") || "http://10.0.0.249:8000";
+      const chosen = state.activeMode === "nsfw" ? window.__SERVER_URL_NSFW__ : standardFallback;
+      return (chosen || standardFallback).trim().replace(/\/$/, "");
+    }
+
+    function selectedModel() {
+      return state.models.find((m) => m.name === dom.model.value) || null;
+    }
+
+    function persistStore() {
+      localStorage.setItem("promptstore_history", JSON.stringify(state.history.slice(0, 30)));
+      localStorage.setItem("promptstore_tasks", JSON.stringify(state.tasks.slice(0, 30)));
+      localStorage.setItem("promptstore_mode", state.activeMode || "");
+      localStorage.setItem("promptstore_view", state.activeView || "generate");
+      localStorage.setItem("promptstore_last_models", JSON.stringify(state.lastModelByMode || {}));
+    }
+
+    function statusClass(status) {
+      return {
+        pending: "status-pending",
+        running: "status-running",
+        done: "status-done",
+        failed: "status-failed",
+      }[status] || "status-pending";
+    }
+
+    function reuseTask(item) {
+      applyMode(item.nsfw ? "nsfw" : "standard", true);
+      dom.model.value = item.model || dom.model.value;
+      dom.quality.value = item.quality || dom.quality.value;
+      dom.aspect.value = item.aspect || dom.aspect.value;
+      dom.prompt.value = item.prompt || "";
+      dom.seed.value = item.seed === null || item.seed === undefined || item.seed === "Random" ? "" : item.seed;
+      dom.negativePrompt.value = item.negative_prompt !== undefined
+        ? item.negative_prompt
+        : (selectedModel()?.default_negative_prompt || "");
+      state.lastModelByMode[state.activeMode] = dom.model.value;
+      persistStore();
+      loadDefaultsIntoForm({ preserveNegativePrompt: true });
+      setView("generate");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderHistory() {
+      dom.historyCount.textContent = `${state.history.length} saved`;
+      if (!state.history.length) {
+        dom.historyList.innerHTML = `
+          <div class="history-card">
+            <div class="history-title">No saved prompts yet</div>
+            <div class="history-sub">Completed generations will appear here with thumbnails, metadata, and reuse actions.</div>
+          </div>
+        `;
+        return;
+      }
+      dom.historyList.innerHTML = state.history.map((item) => `
+        <div class="history-card">
+          <div class="history-meta">
+            <div>
+              <div class="history-title">${item.model} · ${item.quality} · ${item.aspect}</div>
+              <div class="history-sub">${item.prompt || ""}</div>
+            </div>
+            <span class="status-chip ${statusClass(item.status)}">${item.status}</span>
+          </div>
+          <div class="tag-row">
+            <span class="tag">${item.images?.length || item.images || 0} images</span>
+            <span class="tag">${item.created || ""}</span>
+            <span class="tag">${item.nsfw ? "NSFW" : "Standard"}</span>
+          </div>
+          <div class="history-thumb-row">
+            ${(item.image_urls || []).map((url) => `<img class="history-thumb" src="${url}" alt="History thumbnail" data-history-thumb="${item.id}" data-image-url="${url}">`).join("")}
+          </div>
+          <div class="history-sub">${item.detail || ""}</div>
+          <div class="rail-actions">
+            <button class="mini-btn" type="button" data-reuse-history="${item.id}">Reuse prompt</button>
+          </div>
+        </div>
+      `).join("");
+      dom.historyList.querySelectorAll("[data-reuse-history]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const item = state.history.find((entry) => entry.id === button.getAttribute("data-reuse-history"));
+          if (item) reuseTask(item);
         });
+      });
+      dom.historyList.querySelectorAll("[data-image-url]").forEach((thumb) => {
+        thumb.addEventListener("click", () => {
+          const item = state.history.find((entry) => entry.id === thumb.getAttribute("data-history-thumb"));
+          if (!item) return;
+          openModal({
+            ...item,
+            url: thumb.getAttribute("data-image-url"),
+            resolution: item.aspect,
+            seed: item.seed,
+          });
+        });
+      });
+    }
 
-        applyMode(state.activeMode); setView(state.activeView);
-        window.openArchiveItem = openArchiveItem; window.openModal = openModal; window.closeModal = closeModal;
-    </script>
+    function renderTasks() {
+      dom.taskCount.textContent = `${state.tasks.length} tasks`;
+      if (!state.tasks.length) {
+        dom.taskList.innerHTML = `
+          <div class="task-card">
+            <div class="history-title">No active tasks</div>
+            <div class="history-sub">Queued or generating jobs will appear here while the server works.</div>
+          </div>
+        `;
+        return;
+      }
+      dom.taskList.innerHTML = state.tasks.map((item) => `
+        <div class="task-card">
+          <div class="history-meta">
+            <div>
+              <div class="history-title">${item.model} · ${item.quality}</div>
+              <div class="history-sub">${item.prompt || ""}</div>
+            </div>
+            <span class="status-chip ${statusClass(item.status)}">${item.status}</span>
+          </div>
+          <div class="tag-row">
+            <span class="tag">${item.aspect}</span>
+            <span class="tag">seed: ${item.seed ?? "random"}</span>
+            <span class="tag">${item.task_uuids?.length || 0} jobs</span>
+          </div>
+          <div class="history-sub">${item.detail || ""}</div>
+          <div class="rail-actions">
+            <button class="mini-btn" type="button" data-reuse-task="${item.id}">Reuse task</button>
+          </div>
+        </div>
+      `).join("");
+      dom.taskList.querySelectorAll("[data-reuse-task]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const item = state.tasks.find((entry) => entry.id === button.getAttribute("data-reuse-task"));
+          if (item) reuseTask(item);
+        });
+      });
+    }
+
+    function addTask(task) {
+      state.tasks.unshift(task);
+      state.tasks = state.tasks.slice(0, 30);
+      persistStore();
+      renderTasks();
+    }
+
+    function addHistory(task) {
+      state.history.unshift(task);
+      state.history = state.history.slice(0, 30);
+      persistStore();
+      renderHistory();
+    }
+
+    function updateTask(id, patch) {
+      const task = state.tasks.find((t) => t.id === id);
+      if (!task) return;
+      Object.assign(task, patch);
+      persistStore();
+      renderTasks();
+    }
+
+    function openModal(item) {
+      dom.modalTitle.textContent = item.model || "Preview";
+      dom.modalSubtitle.textContent = item.url;
+      dom.modalImage.src = item.url;
+      dom.modalPrompt.textContent = item.prompt || "";
+      dom.modalModel.textContent = `${item.model || ""} • ${item.quality || ""} • ${item.aspect || ""}`;
+      dom.modalResolution.textContent = item.resolution || "";
+      dom.modalSeed.textContent = item.seed ?? "Random";
+      dom.downloadImageBtn.href = item.url;
+      dom.downloadImageBtn.download = `${(item.model || "prompt").replace(/\s+/g, "_")}.jpg`;
+      dom.openImageBtn.href = item.url;
+      dom.modal.classList.add("active");
+    }
+
+    function closeModal() {
+      dom.modal.classList.remove("active");
+      dom.modalImage.src = "";
+    }
+
+    function loadDefaultsIntoForm({ preserveNegativePrompt = false } = {}) {
+      const model = selectedModel();
+      if (!model) return;
+      state.modelDefaults = model;
+      if (!preserveNegativePrompt) {
+        dom.negativePrompt.value = model.default_negative_prompt || "";
+      }
+      dom.defaultsLine.textContent = `Defaults: profile=${model.profile}, steps=${model.default_n_steps}, cfg=${model.default_guidance_scale}`;
+    }
+
+    function setView(view) {
+      state.activeView = view;
+      persistStore();
+      document.querySelectorAll("[data-view-panel]").forEach((panel) => {
+        panel.classList.toggle("active", panel.getAttribute("data-view-panel") === view);
+      });
+      dom.navButtons.forEach((btn) => {
+        btn.classList.toggle("active", btn.getAttribute("data-view") === view);
+      });
+    }
+
+    function currentCatalog() {
+      return state.activeMode === "nsfw" ? NSFW_MODELS : SFW_MODELS;
+    }
+
+    function applyMode(mode, preserveSelections = false) {
+      state.activeMode = mode;
+      state.modeChosen = !!mode;
+      document.body.dataset.mode = mode;
+      state.serverUrl = getServerUrl();
+      dom.serverUrl.value = state.serverUrl;
+      dom.modeButtons.forEach((btn) => btn.classList.toggle("active", btn.getAttribute("data-mode") === mode));
+      dom.modeStatus.textContent = mode === "nsfw" ? "NSFW mode active" : "Standard mode active";
+      dom.model.disabled = false;
+      dom.quality.disabled = false;
+      dom.aspect.disabled = false;
+      dom.prompt.disabled = false;
+      dom.negativePrompt.disabled = false;
+      dom.seed.disabled = false;
+      dom.generateBtn.disabled = false;
+      const catalog = currentCatalog();
+      state.models = catalog;
+      dom.model.innerHTML = "";
+      catalog.forEach((model) => {
+        const option = document.createElement("option");
+        option.value = model.name;
+        option.textContent = model.name;
+        dom.model.appendChild(option);
+      });
+      dom.quality.innerHTML = "";
+      ["Fast", "High Quality"].forEach((q) => {
+        const option = document.createElement("option");
+        option.value = q;
+        option.textContent = q;
+        dom.quality.appendChild(option);
+      });
+      dom.aspect.innerHTML = "";
+      ["1:1", "16:9", "5:2", "4:5", "4:7"].forEach((a) => {
+        const option = document.createElement("option");
+        option.value = a;
+        option.textContent = a;
+        dom.aspect.appendChild(option);
+      });
+      const lastModel = state.lastModelByMode[mode];
+      dom.model.value = lastModel && catalog.some((m) => m.name === lastModel) ? lastModel : catalog[0]?.name || "";
+      if (dom.model.value) state.lastModelByMode[mode] = dom.model.value;
+      persistStore();
+      loadDefaultsIntoForm();
+      setStatus(mode === "nsfw" ? "NSFW mode ready" : "Standard mode ready", true);
+      dom.defaultsLine.textContent = state.modelDefaults
+        ? `Defaults: profile=${state.modelDefaults.profile}, steps=${state.modelDefaults.default_n_steps}, cfg=${state.modelDefaults.default_guidance_scale}`
+        : "Choose a model";
+      renderHistory();
+      renderTasks();
+      if (!preserveSelections) {
+        // Keep existing prompt text, but update model defaults for the chosen mode.
+      }
+    }
+
+    function lockWorkspace() {
+      state.modeChosen = false;
+      document.body.removeAttribute("data-mode");
+      dom.modeButtons.forEach((btn) => btn.classList.remove("active"));
+      dom.serverUrl.value = "";
+      dom.modeStatus.textContent = "Choose Standard or NSFW";
+      dom.defaultsLine.textContent = "Choose a mode to load models";
+      setStatus("Choose generation mode");
+      dom.model.innerHTML = "";
+      dom.quality.innerHTML = "";
+      dom.aspect.innerHTML = "";
+      dom.model.options.length = 0;
+      dom.model.disabled = true;
+      dom.quality.disabled = true;
+      dom.aspect.disabled = true;
+      dom.prompt.disabled = true;
+      dom.negativePrompt.disabled = true;
+      dom.seed.disabled = true;
+      dom.generateBtn.disabled = true;
+    }
+
+    function collectRequestBody() {
+      const model = selectedModel();
+      if (!model) throw new Error("Select a model.");
+      return {
+        model: dom.model.value,
+        quality: dom.quality.value,
+        aspect: dom.aspect.value,
+        prompt: dom.prompt.value.trim(),
+        seed: dom.seed.value ? Number(dom.seed.value) : null,
+        nsfw: state.activeMode === "nsfw",
+        negative_prompt: dom.negativePrompt.value.trim(),
+      };
+    }
+
+    function renderImages(urls) {
+      dom.gallery.innerHTML = "";
+      state.lastGenerated = urls;
+      if (!urls.length) {
+        dom.gallery.innerHTML = `
+          <div class="history-card">
+            <div class="history-title">Your generated images will appear here</div>
+            <div class="history-sub">Open an image to preview it, or use the download button when you want to save it.</div>
+          </div>
+        `;
+        dom.imageCount.textContent = "0 images";
+        return;
+      }
+      urls.forEach((item, index) => {
+        const card = document.createElement("div");
+        card.className = "art-card";
+        const sizeTag = item.resolution || item.aspect || "1:1";
+        card.innerHTML = `
+          <img src="${item.url}" alt="Generated output">
+          <div class="art-meta">
+            <div class="art-title">#${index + 1} · ${item.model || "Prompt"}<br><span style="opacity:.75">${sizeTag} · ${item.quality || ""}</span></div>
+            <div class="art-actions">
+              <a class="icon-btn" href="${item.url}" download title="Download">⇩</a>
+              <button class="icon-btn" type="button" title="View">↗</button>
+            </div>
+          </div>
+        `;
+        const viewBtn = card.querySelector("button");
+        viewBtn.addEventListener("click", (event) => {
+          event.stopPropagation();
+          openModal(item);
+        });
+        card.addEventListener("click", () => openModal(item));
+        const downloadLink = card.querySelector("a");
+        downloadLink.addEventListener("click", (event) => event.stopPropagation());
+        dom.gallery.appendChild(card);
+      });
+      dom.imageCount.textContent = `${urls.length} image${urls.length === 1 ? "" : "s"}`;
+    }
+
+    dom.modeButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        applyMode(button.getAttribute("data-mode"));
+        setView("generate");
+      });
+    });
+
+    dom.navButtons.forEach((button) => {
+      button.addEventListener("click", () => setView(button.getAttribute("data-view")));
+    });
+
+    dom.serverUrl.addEventListener("change", () => {
+      state.serverUrl = dom.serverUrl.value.trim().replace(/\/$/, "");
+      localStorage.setItem("imgnai_server_url", state.serverUrl);
+    });
+
+    dom.model.addEventListener("change", () => {
+      if (!state.modeChosen) return;
+      state.lastModelByMode[state.activeMode] = dom.model.value;
+      persistStore();
+      loadDefaultsIntoForm();
+    });
+
+    dom.clearBtn.addEventListener("click", () => {
+      dom.gallery.innerHTML = "";
+      dom.imageCount.textContent = "0 images";
+      dom.prompt.value = "";
+      dom.negativePrompt.value = "";
+      closeModal();
+    });
+
+    dom.closeModalBtn.addEventListener("click", closeModal);
+    dom.modal.addEventListener("click", (event) => {
+      if (event.target === dom.modal) closeModal();
+    });
+
+    dom.generateBtn.addEventListener("click", async () => {
+      try {
+        if (!state.modeChosen) throw new Error("Choose Standard or NSFW mode first.");
+        state.models = currentCatalog();
+        const body = collectRequestBody();
+        if (!body.prompt) throw new Error("Prompt is required.");
+        const taskId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        const taskRecord = {
+          id: taskId,
+          model: body.model,
+          quality: body.quality,
+          aspect: body.aspect,
+          prompt: body.prompt,
+          seed: body.seed,
+          negative_prompt: body.negative_prompt,
+          nsfw: body.nsfw,
+          status: "pending",
+          created: new Date().toLocaleString(),
+          detail: "Queued on the server.",
+          task_uuids: [],
+        };
+        addTask(taskRecord);
+        dom.generateBtn.disabled = true;
+        dom.generateBtn.textContent = "Generating...";
+        updateTask(taskId, { status: "running", detail: "Generating..." });
+
+        const res = await fetch(`${state.serverUrl}/generate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const text = await res.text();
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${text}`);
+        }
+        const data = JSON.parse(text);
+        const images = (data.image_urls || []).map((url, index) => ({
+          url,
+          model: body.model,
+          quality: body.quality,
+          aspect: body.aspect,
+          prompt: body.prompt,
+          resolution: data.resolution || body.aspect,
+          seed: body.seed !== null ? body.seed + index * 100 : "Random",
+        }));
+        const doneTask = {
+          ...taskRecord,
+          status: "done",
+          detail: `${images.length} image${images.length === 1 ? "" : "s"} ready.`,
+          task_uuids: data.task_uuids || [],
+          images: images.length,
+          image_urls: data.image_urls || [],
+          created: new Date().toLocaleString(),
+        };
+        state.tasks = state.tasks.filter((item) => item.id !== taskId);
+        persistStore();
+        renderTasks();
+        addHistory(doneTask);
+        renderImages(images);
+      } catch (error) {
+        dom.defaultsLine.textContent = error.message;
+        const active = state.tasks.find((t) => t.status === "running" || t.status === "pending");
+        if (active) updateTask(active.id, { status: "failed", detail: error.message });
+      } finally {
+        dom.generateBtn.disabled = false;
+        dom.generateBtn.textContent = "Generate";
+      }
+    });
+
+    renderHistory();
+    renderTasks();
+    if (state.activeMode === "standard" || state.activeMode === "nsfw") {
+      applyMode(state.activeMode, true);
+    } else {
+      lockWorkspace();
+    }
+    setView(state.activeView === "tasks" || state.activeView === "history" ? state.activeView : "generate");
+  </script>
 </body>
-
 </html>
